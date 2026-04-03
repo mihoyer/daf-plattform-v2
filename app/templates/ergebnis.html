@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Einstufungsbericht – DaF/DaZ Sprachdiagnostik</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand"><div class="brand-icon">🎓</div>DaF/DaZ Sprachdiagnostik</a>
+    <div class="flex gap-2" id="export-buttons"></div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:2rem; padding-bottom:4rem; max-width:900px;">
+  <div id="lade-bereich" class="text-center" style="padding:4rem 0;">
+    <div class="spinner" style="margin:0 auto 1rem;"></div>
+    <p class="text-muted">Bericht wird geladen…</p>
+  </div>
+
+  <div id="bericht-bereich" class="hidden">
+    <!-- Header -->
+    <div class="flex justify-between items-start flex-wrap gap-4 mb-8">
+      <div>
+        <h1 id="bericht-titel">Einstufungsbericht</h1>
+        <p class="text-muted mt-1" id="bericht-datum">–</p>
+        <p style="font-size:.82rem; color:#0369a1; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; padding:.4rem .75rem; margin-top:.5rem; display:inline-flex; gap:.4rem; align-items:center;">🤖 KI-generierter Bericht – gelegentliche Ungenauigkeiten möglich.</p>
+      </div>
+      <div class="flex gap-2 flex-wrap" id="badges"></div>
+    </div>
+
+    <!-- Gesamtscore + CEFR -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem;">
+      <div class="card text-center">
+        <div class="text-sm text-muted mb-1">Gesamtscore</div>
+        <div id="gesamtscore" style="font-size:3rem; font-weight:800; color:var(--primary);">–</div>
+        <div class="text-sm text-muted">von 100 Punkten</div>
+        <div class="score-bar mt-3">
+          <div class="score-bar-fill" id="gesamtscore-bar" style="width:0%;"></div>
+        </div>
+      </div>
+      <div class="card text-center">
+        <div class="text-sm text-muted mb-1">CEFR-Einstufung</div>
+        <div id="cefr-level" style="font-size:3rem; font-weight:800;">–</div>
+        <div id="cefr-beschreibung" class="text-sm text-muted">–</div>
+      </div>
+    </div>
+
+    <!-- Gesamteinschätzung -->
+    <div class="card mb-6">
+      <h3 class="mb-3">🔍 Gesamteinschätzung</h3>
+      <p id="gesamteinschaetzung" class="text-muted">–</p>
+    </div>
+
+    <!-- Visualisierungen: Spinnennetz + Fortschrittsbalken -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem;" id="viz-bereich" class="hidden">
+      <!-- Spinnennetz-Diagramm -->
+      <div class="card">
+        <h3 class="mb-3">🕸️ Kompetenzprofil</h3>
+        <canvas id="radar-chart" width="300" height="300"></canvas>
+      </div>
+      <!-- Fortschrittsbalken -->
+      <div class="card">
+        <h3 class="mb-3">📊 Einzelkompetenzen</h3>
+        <div id="balken-bereich" style="display:flex; flex-direction:column; gap:.75rem;"></div>
+      </div>
+    </div>
+
+    <!-- Modul-Ergebnisse -->
+    <div id="module-bereich"></div>
+
+    <!-- Stärken & Schwächen -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem;">
+      <div class="card">
+        <h3 class="mb-3" style="color:var(--success);">✅ Stärken</h3>
+        <ul id="staerken-liste" style="list-style:none; display:flex; flex-direction:column; gap:.5rem;"></ul>
+      </div>
+      <div class="card">
+        <h3 class="mb-3" style="color:var(--warning);">⚠️ Verbesserungsbedarf</h3>
+        <ul id="schwaechen-liste" style="list-style:none; display:flex; flex-direction:column; gap:.5rem;"></ul>
+      </div>
+    </div>
+
+    <!-- Empfehlungen -->
+    <div class="card mb-6">
+      <h3 class="mb-3">📚 Empfehlungen</h3>
+      <div id="empfehlungen-liste" style="display:flex; flex-direction:column; gap:.75rem;"></div>
+    </div>
+
+    <!-- Export -->
+    <div class="card" style="background:var(--gray-50);">
+      <h3 class="mb-4">📥 Bericht exportieren</h3>
+      <div class="flex gap-3 flex-wrap">
+        <a id="btn-pdf" href="#" class="btn btn-primary" target="_blank">📄 PDF herunterladen</a>
+        <a id="btn-json" href="#" class="btn btn-outline" target="_blank" style="display:none;">{ } JSON exportieren</a>
+      </div>
+      <p class="text-xs text-muted mt-3">🔒 Nach dem Export werden alle Daten dieser Session gelöscht.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = '{{ token }}';
+
+const CEFR_FARBEN = { A1:'#dc2626', A2:'#ea580c', B1:'#d97706', B2:'#65a30d', C1:'#0891b2', C2:'#7c3aed' };
+const MODUL_NAMEN = {
+  m1_grammatik: '📝 Grammatik & Wortschatz',
+  m2_lesen: '📖 Lesen & Leseverstehen',
+  m3_hoerverstehen: '🎧 Hörverstehen',
+  m4_vorlesen: '🔊 Vorlesen',
+  m5_sprechen: '🎙️ Freies Sprechen',
+  m6_schreiben: '✍️ Schreiben',
+};
+
+async function ladeBericht() {
+  try {
+    const res = await fetch(`/api/ergebnis/${token}`);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    zeigeBericht(data);
+  } catch (e) {
+    document.getElementById('lade-bereich').innerHTML =
+      '<div class="alert alert-danger"><span>⚠️</span><div>Bericht nicht gefunden oder abgelaufen.</div></div>';
+  }
+}
+
+function scoreKlasse(score) {
+  if (score >= 70) return 'high';
+  if (score >= 40) return 'medium';
+  return 'low';
+}
+
+function zeigeBericht(data) {
+  document.getElementById('lade-bereich').classList.add('hidden');
+  document.getElementById('bericht-bereich').classList.remove('hidden');
+
+  // Header
+  document.getElementById('bericht-titel').textContent = `Einstufungsbericht – ${data.paket_name || 'Analyse'}`;
+  document.getElementById('bericht-datum').textContent = new Date().toLocaleDateString('de-DE', { year:'numeric', month:'long', day:'numeric' });
+
+  // Badges
+  const badgesEl = document.getElementById('badges');
+  badgesEl.innerHTML = `
+    <span class="badge badge-primary">${data.paket_name || 'Analyse'}</span>
+    <span class="badge badge-gray">Session ${token.substring(0,8)}…</span>
+  `;
+
+  // Gesamtscore – Backend liefert 'gesamt_score'
+  const score = Math.round(data.gesamt_score || data.gesamtscore || 0);
+  document.getElementById('gesamtscore').textContent = score;
+  const bar = document.getElementById('gesamtscore-bar');
+  bar.className = `score-bar-fill ${scoreKlasse(score)}`;
+  bar.style.width = '0%';
+  requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = score + '%'; }));
+
+  // CEFR – Backend liefert 'gesamt_niveau'
+  const cefr = data.gesamt_niveau || data.cefr_niveau || '–';
+  const cefrEl = document.getElementById('cefr-level');
+  cefrEl.textContent = cefr;
+  cefrEl.style.color = CEFR_FARBEN[cefr] || 'var(--gray-700)';
+  document.getElementById('cefr-beschreibung').textContent = '';
+
+  // Gesamteinschätzung aus Modul-Analysen zusammenbauen
+  const module = data.module || data.module_ergebnisse || [];
+  const abgeschlossene = module.filter(m => m.status === 'abgeschlossen');
+  const einschaetzung = abgeschlossene.length
+    ? `${abgeschlossene.length} von ${module.length} Modulen abgeschlossen. Gesamtniveau: ${cefr}.`
+    : 'Die Analyse wird nach Abschluss aller Module berechnet.';
+  document.getElementById('gesamteinschaetzung').textContent = einschaetzung;
+
+  // Stärken & Schwächen aus Modul-Analysen ableiten
+  const staerkenEl = document.getElementById('staerken-liste');
+  const schwaechenEl = document.getElementById('schwaechen-liste');
+  abgeschlossene.forEach(m => {
+    const analyse = m.analyse || {};
+    const modulName = MODUL_NAMEN[m.modul] || m.modul;
+    const modulScore = m.score || 0;
+    const li = document.createElement('li');
+    li.className = 'text-sm';
+    if (modulScore >= 60) {
+      li.innerHTML = `<span style="color:var(--success); margin-right:.4rem;">✓</span>${modulName}: ${Math.round(modulScore)}/100`;
+      staerkenEl.appendChild(li);
+    } else {
+      li.innerHTML = `<span style="color:var(--warning); margin-right:.4rem;">→</span>${modulName}: ${Math.round(modulScore)}/100`;
+      schwaechenEl.appendChild(li);
+    }
+  });
+  if (!staerkenEl.children.length) staerkenEl.innerHTML = '<li class="text-sm text-muted">–</li>';
+  if (!schwaechenEl.children.length) schwaechenEl.innerHTML = '<li class="text-sm text-muted">–</li>';
+
+  // Empfehlungen
+  const empfEl = document.getElementById('empfehlungen-liste');
+  if (cefr && cefr !== '–') {
+    const div = document.createElement('div');
+    div.className = 'flex gap-2 items-start';
+    div.innerHTML = `<span style="color:var(--primary); flex-shrink:0;">📌</span><p class="text-sm">Basierend auf deinem Niveau ${cefr} empfehlen wir gezieltes Üben der schwächeren Bereiche.</p>`;
+    empfEl.appendChild(div);
+  }
+
+  // Module – Backend liefert 'module' (nicht 'module_ergebnisse')
+  const moduleEl = document.getElementById('module-bereich');
+  if (module.length) {
+    module.forEach(modul => {
+      const div = document.createElement('div');
+      div.className = 'card mb-4';
+      const modulScore = Math.round(modul.score || 0);
+      const analyse = modul.analyse || {};
+
+      // Analyse-Felder aus verschiedenen Backend-Strukturen extrahieren
+      const textAnalyse = analyse.text_analyse || analyse;
+      const audioAnalyse = analyse.audio_analyse || null;
+
+      const einschaetzung = textAnalyse.gesamteinschaetzung || analyse.gesamteinschaetzung || '';
+      const staerken = textAnalyse.staerken || analyse.staerken || [];
+      const schwaechen = textAnalyse.schwaechen || analyse.schwaechen || [];
+      const empfehlungen = textAnalyse.empfehlungen || analyse.empfehlungen || [];
+
+      // Skills aus Grammatik/Wortschatz/Satzbau etc. extrahieren
+      let skillsHTML = '';
+      const skillKategorien = [
+        ['grammatik', textAnalyse.grammatik],
+        ['wortschatz', textAnalyse.wortschatz],
+        ['satzbau', textAnalyse.satzbau ? {satzbau: textAnalyse.satzbau} : null],
+        ['pragmatik', textAnalyse.pragmatik],
+        ['rechtschreibung', textAnalyse.rechtschreibung ? {rechtschreibung: textAnalyse.rechtschreibung} : null],
+        ['kohaerenz', textAnalyse.kohaerenz ? {kohaerenz: textAnalyse.kohaerenz} : null],
+        ['aufgabenerfullung', textAnalyse.aufgabenerfullung ? {aufgabenerfullung: textAnalyse.aufgabenerfullung} : null],
+      ].filter(([, v]) => v && typeof v === 'object');
+
+      const allSkills = [];
+      skillKategorien.forEach(([kat, obj]) => {
+        if (obj && typeof obj === 'object') {
+          if ('score' in obj) {
+            allSkills.push({ name: kat, score: obj.score, begruendung: obj.begruendung || '' });
+          } else {
+            Object.entries(obj).forEach(([k, v]) => {
+              if (v && typeof v === 'object' && 'score' in v) {
+                allSkills.push({ name: k, score: v.score, begruendung: v.begruendung || '' });
+              }
+            });
+          }
+        }
+      });
+
+      if (allSkills.length) {
+        skillsHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:.6rem; margin-top:1rem;">
+          ${allSkills.map(s => `
+            <div style="background:var(--gray-50); border-radius:var(--radius); padding:.6rem;">
+              <div class="flex justify-between mb-1">
+                <span class="text-xs font-bold" style="text-transform:capitalize;">${s.name.replace(/_/g,' ')}</span>
+                <span class="text-xs font-bold" style="color:${s.score >= 7 ? 'var(--success)' : s.score >= 4 ? 'var(--warning)' : 'var(--danger)'}">${s.score}/10</span>
+              </div>
+              <div class="score-bar" style="height:4px;"><div class="score-bar-fill ${scoreKlasse(s.score * 10)}" style="width:0%" data-width="${s.score * 10}%"></div></div>
+              ${s.begruendung ? `<p class="text-xs text-muted mt-1">${s.begruendung}</p>` : ''}
+            </div>
+          `).join('')}
+        </div>`;
+      }
+
+      // Einzelfragen-Details (M1/M2/M3)
+      let detailsHTML = '';
+      if (analyse.details && analyse.details.length) {
+        detailsHTML = `
+          <details style="margin-top:1rem;">
+            <summary class="text-sm font-bold" style="cursor:pointer; color:var(--primary);">Einzelfragen-Auswertung anzeigen</summary>
+            <div style="margin-top:.75rem; display:flex; flex-direction:column; gap:.5rem;">
+              ${analyse.details.map(d => `
+                <div style="padding:.5rem .75rem; border-radius:6px; background:${d.ist_korrekt ? '#f0fdf4' : '#fef2f2'}; border-left:3px solid ${d.ist_korrekt ? 'var(--success)' : 'var(--danger)'}">
+                  <p class="text-xs font-bold mb-1">${d.frage}</p>
+                  <p class="text-xs text-muted">Deine Antwort: <b>${d.gewaehlt_text || d.gewaehlt}</b> ${d.ist_korrekt ? '✓' : `✗ (richtig: ${d.korrekt_text || d.korrekt})`}</p>
+                  ${d.erklaerung ? `<p class="text-xs text-muted mt-1">${d.erklaerung}</p>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </details>`;
+      }
+
+      // Audio-Analyse (M4/M5)
+      let audioHTML = '';
+      if (audioAnalyse) {
+        const av = audioAnalyse.verstaendlichkeit || audioAnalyse;
+        const audioFelder = [
+          ['Verständlichkeit', audioAnalyse.verstaendlichkeit?.score ?? audioAnalyse.verstaendlichkeit],
+          ['Fluss', audioAnalyse.fluss_fluency?.score ?? audioAnalyse.fluss],
+          ['Akzent', audioAnalyse.akzent?.score ?? audioAnalyse.akzent],
+          ['Intonation', audioAnalyse.intonation?.score ?? audioAnalyse.intonation],
+        ].filter(([, v]) => typeof v === 'number');
+        if (audioFelder.length) {
+          audioHTML = `
+            <div style="background:var(--primary-lighter); border-radius:var(--radius); padding:1rem; margin-top:1rem; border-left:3px solid var(--primary-light);">
+              <div class="flex items-center gap-2 mb-2"><span>🎙️</span><strong class="text-sm">Aussprache-Analyse</strong></div>
+              ${audioAnalyse.zusammenfassung ? `<p class="text-sm text-muted mb-2">${audioAnalyse.zusammenfassung}</p>` : ''}
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:.5rem;">
+                ${audioFelder.map(([label, val]) => `
+                  <div style="background:white; border-radius:6px; padding:.5rem; text-align:center;">
+                    <div class="text-xs text-muted">${label}</div>
+                    <div class="font-bold" style="color:${val >= 7 ? 'var(--success)' : val >= 4 ? 'var(--warning)' : 'var(--danger)'}">${val}/10</div>
+                  </div>`).join('')}
+              </div>
+            </div>`;
+        }
+      }
+
+      div.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+          <h3>${MODUL_NAMEN[modul.modul] || modul.modul}</h3>
+          <div class="flex items-center gap-2">
+            <span class="badge badge-gray">${modul.cefr || ''}</span>
+            <span style="font-size:1.3rem; font-weight:800; color:${modulScore >= 70 ? 'var(--success)' : modulScore >= 40 ? 'var(--warning)' : 'var(--danger)'}">${modulScore}/100</span>          </div>
+        </div>
+        <div class="score-bar mb-3"><div class="modul-bar score-bar-fill ${scoreKlasse(modulScore)}" style="width:0%"></div></div>
+        ${einschaetzung ? `<p class="text-sm text-muted mb-3">${einschaetzung}</p>` : ''}
+        ${staerken.length ? `<p class="text-sm mb-1"><span style="color:var(--success);">✓ Stärken:</span> ${staerken.join(' · ')}</p>` : ''}
+        ${schwaechen.length ? `<p class="text-sm mb-1"><span style="color:var(--warning);">→ Verbesserung:</span> ${schwaechen.join(' · ')}</p>` : ''}
+        ${empfehlungen.length ? `<p class="text-sm mb-3"><span style="color:var(--primary);">📌 Empfehlung:</span> ${empfehlungen.join(' · ')}</p>` : ''}
+        ${skillsHTML}
+        ${detailsHTML}
+        ${audioHTML}
+      `;
+      moduleEl.appendChild(div);
+    });
+    // Modul-Balken animieren nach Paint
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      moduleEl.querySelectorAll('.modul-bar').forEach(el => {
+        el.style.width = el.dataset.score || el.style.width;
+      });
+      // Modul-Balken: Score aus Klasse ableiten
+      module.forEach((modul, idx) => {
+        const modulScore = Math.round(modul.score || 0);
+        const bars = moduleEl.querySelectorAll('.modul-bar');
+        if (bars[idx]) bars[idx].style.width = modulScore + '%';
+      });
+      // Skill-Balken (Unterkategorien)
+      moduleEl.querySelectorAll('.score-bar-fill:not(.modul-bar)').forEach(el => {
+        const w = el.getAttribute('data-width');
+        if (w) el.style.width = w;
+      });
+    }));
+  }
+
+  // Export-Links
+  document.getElementById('btn-pdf').href = `/api/export/pdf/${token}`;
+  document.getElementById('btn-json').href = `/api/ergebnis/${token}`;
+
+  // Visualisierungen aufbauen
+  zeigeVisualisierungen(module);
+}
+
+function zeigeVisualisierungen(module) {
+  if (!module || !module.length) return;
+
+  // Modul-Scores normalisieren (M4/M5 sind 0-10, andere 0-100)
+  const MODUL_NAMEN_KURZ = {
+    'm1_grammatik': 'Grammatik',
+    'm2_lesen': 'Lesen',
+    'm3_hoerverstehen': 'Hören',
+    'm4_vorlesen': 'Vorlesen',
+    'm5_sprechen': 'Sprechen',
+    'm6_schreiben': 'Schreiben',
+  };
+
+  const labels = [];
+  const scores = [];    // CEFR-Werte (1–6) für Radar
+  const rawScores = []; // Original-Scores (0–100) für Balken
+  const farben = [];
+
+  // CEFR-Niveau zu numerischem Wert (1–6)
+  const CEFR_WERT = { 'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6 };
+  const CEFR_FARBE = { 1: '#ef4444', 2: '#f97316', 3: '#eab308', 4: '#22c55e', 5: '#3b82f6', 6: '#8b5cf6' };
+
+  // Score (0–100) zu CEFR-Wert umrechnen
+  function scoreToCEFR(score) {
+    if (score >= 90) return 6;  // C2
+    if (score >= 75) return 5;  // C1
+    if (score >= 58) return 4;  // B2
+    if (score >= 42) return 3;  // B1
+    if (score >= 25) return 2;  // A2
+    return 1;                   // A1
+  }
+
+  module.forEach(m => {
+    const name = MODUL_NAMEN_KURZ[m.modul] || m.modul;
+    let score = Math.round(m.score || 0);
+    if (score <= 15) score = score * 10;
+    score = Math.min(100, score);
+    // CEFR-Wert bevorzugt aus m.cefr, sonst aus Score ableiten
+    const cefrStr = m.cefr || '';
+    const cefrVal = CEFR_WERT[cefrStr] || scoreToCEFR(score);
+    labels.push(name);
+    scores.push(cefrVal);     // für Radar
+    rawScores.push(score);    // für Balken
+    farben.push(CEFR_FARBE[cefrVal] || '#6b7280');
+  });
+
+  if (labels.length < 2) return;
+  document.getElementById('viz-bereich').classList.remove('hidden');
+
+  // Spinnennetz-Diagramm mit CEFR-Achse
+  const ctx = document.getElementById('radar-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Kompetenzprofil',
+        data: scores,
+        backgroundColor: 'rgba(37, 99, 235, 0.15)',
+        borderColor: 'rgba(37, 99, 235, 0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: farben,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: 0, max: 6,
+          ticks: {
+            stepSize: 1,
+            font: { size: 10, weight: 'bold' },
+            color: '#374151',
+            backdropColor: 'rgba(255,255,255,0.85)',
+            callback: (val) => ['', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'][val] || ''
+          },
+          pointLabels: { font: { size: 12, weight: 'bold' }, color: '#1a2744' },
+          grid: { color: 'rgba(0,0,0,0.08)' },
+          angleLines: { color: 'rgba(0,0,0,0.1)' },
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const niveaus = ['', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+              return ' Niveau: ' + (niveaus[ctx.raw] || ctx.raw);
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Fortschrittsbalken – width erst nach rAF setzen damit CSS-Transition sichtbar ist
+  const balkenEl = document.getElementById('balken-bereich');
+  const balkenFills = [];
+  labels.forEach((label, i) => {
+    const rawScore = rawScores[i]; // Original-Score 0–100 für Balken
+    const farbe = rawScore >= 70 ? 'var(--success)' : rawScore >= 40 ? 'var(--warning)' : 'var(--danger)';
+    const cefr = module[i].cefr || '';
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-sm font-bold">${label}</span>
+        <div class="flex items-center gap-2">
+          ${cefr ? `<span class="badge badge-gray" style="font-size:.7rem;">${cefr}</span>` : ''}
+          <span class="text-sm font-bold" style="color:${farbe};">${rawScore}/100</span>
+        </div>
+      </div>
+      <div style="background:#f3f4f6; border-radius:999px; height:10px; overflow:hidden;">
+        <div class="bar-fill" style="height:100%; width:0%; background:${farbe}; border-radius:999px; transition:width 1s ease;"></div>
+      </div>
+    `;
+    balkenEl.appendChild(div);
+    balkenFills.push({ el: div.querySelector('.bar-fill'), score: rawScore });
+  });
+  // Trigger animation after paint
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    balkenFills.forEach(({ el, score }) => { el.style.width = score + '%'; });
+  }));
+}
+
+ladeBericht();
+
+// Kandidaten-Abschluss-Benachrichtigung (nur wenn vom QR-Code-System gestartet)
+async function sendeAbschlussNotifikation() {
+  try {
+    await fetch('/api/kandidat/abschluss', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token })
+    });
+  } catch (e) {
+    // Stilles Scheitern – kein Einfluss auf Nutzererfahrung
+  }
+}
+sendeAbschlussNotifikation();
+</script>
+</body>
+</html>

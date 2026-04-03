@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M1 Grammatik & Wortschatz – DaF/DaZ Sprachdiagnostik</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand"><div class="brand-icon">🎓</div>DaF/DaZ Sprachdiagnostik</a>
+    <div class="badge badge-primary">📝 M1 – Grammatik &amp; Wortschatz</div>
+  </div>
+</nav>
+
+<div class="container-sm" style="padding-top:2rem; padding-bottom:4rem;">
+
+  <!-- Lade-Bereich -->
+  <div id="lade-bereich" class="text-center" style="padding:4rem 0;">
+    <div class="spinner" style="margin:0 auto 1rem;"></div>
+    <p class="text-muted" id="lade-text">Aufgaben werden generiert…</p>
+  </div>
+
+  <!-- Aufgaben-Bereich -->
+  <div id="aufgaben-bereich" class="hidden">
+    <!-- Header -->
+    <div class="card mb-4" style="background:var(--primary-lighter);">
+      <div class="flex justify-between items-center flex-wrap gap-2">
+        <div>
+          <h2 class="mb-1">Grammatik &amp; Wortschatz</h2>
+          <p class="text-sm text-muted">Adaptiver Test · Fragen passen sich deinem Niveau an</p>
+        </div>
+        <div class="flex gap-2 items-center">
+          <span class="badge badge-gray" id="fortschritt-badge">1 / 10</span>
+          <span class="badge badge-primary" id="niveau-badge" style="display:none;">Niveau: –</span>
+        </div>
+      </div>
+      <!-- Fortschrittsbalken -->
+      <div class="score-bar mt-3">
+        <div class="score-bar-fill high" id="fortschritt-balken" style="width:10%;"></div>
+      </div>
+    </div>
+
+    <!-- KI-Hinweis -->
+    <div class="alert alert-info mb-3" style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:.75rem 1rem; font-size:.85rem; color:#0369a1; display:flex; gap:.5rem; align-items:flex-start;">
+      <span style="flex-shrink:0;">🤖</span>
+      <span>Die Aufgaben werden durch KI generiert. Gelegentlich können inhaltliche Ungenauigkeiten vorkommen – bitte kritisch lesen.</span>
+    </div>
+
+    <!-- Frage-Karte -->
+    <div id="frage-container"></div>
+
+    <!-- Feedback nach Antwort -->
+    <div id="feedback-bereich" class="hidden mt-4">
+      <div id="feedback-karte" class="card" style="border-left:4px solid #22c55e;">
+        <p id="feedback-text" class="mb-0"></p>
+      </div>
+    </div>
+
+    <!-- Weiter-Button -->
+    <div class="flex justify-end mt-4">
+      <button class="btn btn-primary" id="btn-weiter" onclick="weiter()" disabled>Antwort eingeben →</button>
+    </div>
+  </div>
+
+  <!-- Analyse-Overlay -->
+  <div id="analyse-overlay" class="analyse-overlay hidden">
+    <div class="analyse-card">
+      <div class="spinner"></div>
+      <h3>Auswertung läuft…</h3>
+      <p class="text-muted mt-2">Deine Antworten werden analysiert.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+.lueckentext-input {
+  display: inline-block;
+  border: none;
+  border-bottom: 2px solid var(--primary);
+  background: transparent;
+  font-size: 1.1rem;
+  font-family: inherit;
+  padding: 2px 8px;
+  min-width: 120px;
+  width: 160px;
+  text-align: center;
+  outline: none;
+  color: var(--gray-900);
+  transition: border-color 0.2s;
+}
+.lueckentext-input:focus {
+  border-bottom-color: var(--primary-dark, #2563eb);
+}
+.lueckentext-input:disabled {
+  color: var(--gray-600);
+  border-bottom-color: var(--gray-300);
+}
+.lueckentext-input.korrekt {
+  border-bottom-color: #22c55e;
+  color: #15803d;
+}
+.lueckentext-input.falsch {
+  border-bottom-color: #ef4444;
+  color: #b91c1c;
+}
+</style>
+
+<script>
+const token = '{{ token }}';
+const GESAMT_FRAGEN = 10;
+
+// Zustand
+let alleFragen = [];
+let antworten = {};           // {item_id: eingegebener_text}
+let aktuelleFrageIdx = 0;
+let eingabeAktiv = true;
+let geschaetztesNiveau = 'B1';
+let wartendAufNaechste = false;
+
+// ── Start ──────────────────────────────────────────────────────────────────
+
+async function ladeEinstiegsfragen() {
+  try {
+    const res = await fetch(`/api/m1/${token}/items`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    alleFragen = data.items || [];
+    geschaetztesNiveau = data.geschaetztes_niveau || 'B1';
+
+    document.getElementById('lade-bereich').classList.add('hidden');
+    document.getElementById('aufgaben-bereich').classList.remove('hidden');
+
+    zeigeAktuelleFrage();
+  } catch (e) {
+    document.getElementById('lade-text').textContent = 'Fehler beim Laden. Bitte Seite neu laden.';
+    console.error(e);
+  }
+}
+
+// ── Frage anzeigen ─────────────────────────────────────────────────────────
+
+function zeigeAktuelleFrage() {
+  const frage = alleFragen[aktuelleFrageIdx];
+  if (!frage) return;
+
+  eingabeAktiv = true;
+  document.getElementById('feedback-bereich').classList.add('hidden');
+  document.getElementById('btn-weiter').disabled = true;
+  document.getElementById('btn-weiter').textContent = 'Antwort eingeben →';
+
+  // Fortschritt
+  const frageNr = aktuelleFrageIdx + 1;
+  document.getElementById('fortschritt-badge').textContent = `${frageNr} / ${GESAMT_FRAGEN}`;
+  document.getElementById('fortschritt-balken').style.width = `${(frageNr / GESAMT_FRAGEN) * 100}%`;
+
+  // Niveau-Badge ab Frage 4 anzeigen
+  const niveauBadge = document.getElementById('niveau-badge');
+  if (aktuelleFrageIdx >= 3) {
+    niveauBadge.style.display = '';
+    niveauBadge.textContent = `Niveau: ${geschaetztesNiveau}`;
+  }
+
+  // Lückentext aufbauen: _____ durch Eingabefeld ersetzen
+  const satz = frage.frage;
+  const bereitsBeantwortet = antworten[frage.id] !== undefined;
+  const gespeicherteAntwort = antworten[frage.id] ?? '';
+
+  // Satz mit Lücke in HTML umwandeln
+  const satzHtml = satz.replace('_____', `<input
+    type="text"
+    id="luecken-input"
+    class="lueckentext-input"
+    placeholder="…"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="none"
+    spellcheck="false"
+    style="text-transform:none;"
+    value="${bereitsBeantwortet ? escapeHtml(gespeicherteAntwort) : ''}"
+    ${bereitsBeantwortet ? 'disabled' : ''}
+    oninput="onEingabe(this)"
+    onkeydown="onKeyDown(event)"
+  >`);
+
+  const container = document.getElementById('frage-container');
+  container.innerHTML = `
+    <div class="card">
+      <div class="text-xs text-muted mb-3" style="display:flex; gap:.5rem; align-items:center;">
+        <span>Frage ${frageNr}</span>
+        ${frage.thema ? `<span style="background:var(--primary-lighter); padding:2px 8px; border-radius:12px;">${frage.thema}</span>` : ''}
+      </div>
+      <p class="text-sm text-muted mb-3">Ergänze die fehlende Wortform im Lückentext:</p>
+      <h3 class="mb-5" style="font-size:1.15rem; line-height:2;">${satzHtml}</h3>
+    </div>
+  `;
+
+  // Wenn bereits beantwortet: Feedback sofort zeigen und Input färben
+  if (bereitsBeantwortet) {
+    const istKorrekt = pruefeAntwort(gespeicherteAntwort, frage);
+    const inputEl = document.getElementById('luecken-input');
+    if (inputEl) {
+      inputEl.classList.add(istKorrekt ? 'korrekt' : 'falsch');
+    }
+    zeigeFeedback(istKorrekt, frage.erklaerung, frage.korrekte_antwort_text || frage.optionen?.[frage.korrekt] || '');
+    document.getElementById('btn-weiter').disabled = false;
+    document.getElementById('btn-weiter').textContent =
+      aktuelleFrageIdx < GESAMT_FRAGEN - 1 ? 'Weiter →' : 'Auswertung starten →';
+  } else {
+    // Fokus auf das Eingabefeld setzen
+    setTimeout(() => {
+      const inputEl = document.getElementById('luecken-input');
+      if (inputEl) inputEl.focus();
+    }, 100);
+  }
+}
+
+// ── Eingabe-Handler ────────────────────────────────────────────────────────
+
+function onEingabe(inputEl) {
+  const val = inputEl.value.trim();
+  const btn = document.getElementById('btn-weiter');
+  btn.disabled = val.length === 0;
+  if (val.length > 0) {
+    btn.textContent = 'Antwort prüfen →';
+  } else {
+    btn.textContent = 'Antwort eingeben →';
+  }
+}
+
+function onKeyDown(event) {
+  if (event.key === 'Enter') {
+    const btn = document.getElementById('btn-weiter');
+    if (!btn.disabled) {
+      pruefeUndWeiter();
+    }
+  }
+}
+
+// ── Antwort prüfen ─────────────────────────────────────────────────────────
+
+function pruefeAntwort(eingabe, frage) {
+  const korrektText = (frage.korrekte_antwort_text || frage.optionen?.[frage.korrekt] || '').trim().toLowerCase();
+  const eingabeNorm = eingabe.trim().toLowerCase();
+  return eingabeNorm === korrektText;
+}
+
+async function pruefeUndWeiter() {
+  if (!eingabeAktiv || wartendAufNaechste) return;
+
+  const inputEl = document.getElementById('luecken-input');
+  if (!inputEl) return;
+
+  const eingabe = inputEl.value.trim();
+  if (!eingabe) return;
+
+  eingabeAktiv = false;
+  inputEl.disabled = true;
+
+  const frage = alleFragen[aktuelleFrageIdx];
+  antworten[frage.id] = eingabe;
+
+  const istKorrekt = pruefeAntwort(eingabe, frage);
+  const korrektText = frage.korrekte_antwort_text || frage.optionen?.[frage.korrekt] || '';
+  const istLetzte = aktuelleFrageIdx >= GESAMT_FRAGEN - 1;
+  // Nächste Frage im Hintergrund laden, wenn:
+  // - nicht die letzte Frage
+  // - wir noch keine Frage für den nächsten Index haben
+  const naechsterIdx = aktuelleFrageIdx + 1;
+  const naechsteFehlt = naechsterIdx >= alleFragen.length;
+
+  // Input einfärben
+  inputEl.classList.add(istKorrekt ? 'korrekt' : 'falsch');
+
+  // 1. Feedback sofort anzeigen
+  zeigeFeedback(istKorrekt, frage.erklaerung, korrektText);
+
+  // 2. Weiter-Button aktivieren
+  document.getElementById('btn-weiter').disabled = false;
+  document.getElementById('btn-weiter').textContent =
+    istLetzte ? 'Auswertung starten →' : 'Weiter →';
+
+  // 3. Nächste Frage parallel im Hintergrund laden (immer, wenn sie noch fehlt)
+  if (!istLetzte && naechsteFehlt) {
+    wartendAufNaechste = true;
+    const btnWeiter = document.getElementById('btn-weiter');
+
+    const gewaehltIdx = istKorrekt ? frage.korrekt : (frage.korrekt === 0 ? 1 : 0);
+
+    fetch(`/api/m1/${token}/naechste`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item_id: frage.id, gewaehlt: gewaehltIdx }),
+    })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(data => {
+      if (data.frage) {
+        alleFragen.push(data.frage);
+        geschaetztesNiveau = data.geschaetztes_niveau || geschaetztesNiveau;
+      }
+      wartendAufNaechste = false;
+      if (btnWeiter.dataset.wartet === '1') {
+        btnWeiter.dataset.wartet = '0';
+        btnWeiter.disabled = false;
+        btnWeiter.textContent = 'Weiter →';
+        aktuelleFrageIdx++;
+        zeigeAktuelleFrage(); // setzt auch den frage-container neu
+      }
+    })
+    .catch(e => {
+      console.error('Fehler beim Laden der nächsten Frage:', e);
+      wartendAufNaechste = false;
+      // Trotz Fehler: Weiter-Button reaktivieren
+      if (btnWeiter.dataset.wartet === '1') {
+        btnWeiter.dataset.wartet = '0';
+        btnWeiter.disabled = false;
+        btnWeiter.textContent = 'Weiter →';
+      }
+    });
+  }
+}
+
+// ── Feedback ───────────────────────────────────────────────────────────────
+
+function zeigeFeedback(istKorrekt, erklaerung, korrektText) {
+  const bereich = document.getElementById('feedback-bereich');
+  const karte = document.getElementById('feedback-karte');
+  const text = document.getElementById('feedback-text');
+
+  karte.style.borderLeftColor = istKorrekt ? '#22c55e' : '#ef4444';
+  text.innerHTML = istKorrekt
+    ? `<strong style="color:#22c55e;">✓ Richtig!</strong> ${erklaerung || ''}`
+    : `<strong style="color:#ef4444;">✗ Leider falsch.</strong> Die richtige Antwort ist: <strong>${escapeHtml(korrektText)}</strong>. ${erklaerung || ''}`;
+
+  bereich.classList.remove('hidden');
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+
+async function weiter() {
+  // Wurde noch keine Antwort geprüft? Dann jetzt prüfen.
+  if (eingabeAktiv) {
+    await pruefeUndWeiter();
+    return;
+  }
+
+  if (aktuelleFrageIdx >= GESAMT_FRAGEN - 1) {
+    await sendeEndauswertung();
+    return;
+  }
+
+  const naechsterIdx = aktuelleFrageIdx + 1;
+
+  if (naechsterIdx < alleFragen.length) {
+    aktuelleFrageIdx = naechsterIdx;
+    zeigeAktuelleFrage();
+    return;
+  }
+
+  // Nächste Frage wird noch generiert – Spinner anzeigen
+  const btn = document.getElementById('btn-weiter');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:.5rem;"></span>Frage wird generiert…';
+  btn.dataset.wartet = '1';
+  // Frage-Container mit Lade-Hinweis ersetzen
+  document.getElementById('frage-container').innerHTML = `
+    <div class="card" style="text-align:center; padding:2rem;">
+      <div class="spinner" style="margin:0 auto 1rem;"></div>
+      <p class="text-muted">Nächste Frage wird generiert…</p>
+    </div>
+  `;
+}
+
+// ── Endauswertung ──────────────────────────────────────────────────────────
+
+async function sendeEndauswertung() {
+  document.getElementById('analyse-overlay').classList.remove('hidden');
+
+  // Antworten als {item_id_string: option_index} – für Kompatibilität mit Backend
+  // korrekt = Index der richtigen Antwort, falsch = anderer Index
+  const antwortenPayload = {};
+  alleFragen.forEach(f => {
+    if (antworten[f.id] !== undefined) {
+      const eingabe = antworten[f.id];
+      const istKorrekt = pruefeAntwort(eingabe, f);
+      antwortenPayload[String(f.id)] = istKorrekt ? f.korrekt : (f.korrekt === 0 ? 1 : 0);
+    }
+  });
+
+  try {
+    const res = await fetch(`/api/m1/${token}/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ antworten: antwortenPayload }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const naechste = await naechstesModul();
+    window.location.href = naechste || `/ergebnis/${token}`;
+  } catch (e) {
+    document.getElementById('analyse-overlay').classList.add('hidden');
+    alert('Fehler bei der Auswertung. Bitte versuche es erneut.');
+    console.error(e);
+  }
+}
+
+async function naechstesModul() {
+  try {
+    const r = await fetch(`/api/session/${token}/status`);
+    const s = await r.json();
+    const naechstes = s.module.find(m => m.status === 'ausstehend');
+    if (naechstes) return `/${naechstes.modul.split('_')[0]}/${token}`;
+  } catch(e) {}
+  return null;
+}
+
+// ── Hilfsfunktionen ────────────────────────────────────────────────────────
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+ladeEinstiegsfragen();
+</script>
+</body>
+</html>
