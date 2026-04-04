@@ -34,29 +34,27 @@
         <div class="flex gap-2 items-center">
           <span class="badge badge-gray" id="fortschritt-badge">1 / 10</span>
           <span class="badge badge-primary" id="niveau-badge" style="display:none;">Niveau: –</span>
+          <!-- Info-Button -->
+          <button
+            id="info-btn"
+            onclick="toggleInfo()"
+            title="Hinweis anzeigen"
+            style="background:none; border:1px solid var(--primary); border-radius:50%; width:24px; height:24px; font-size:.75rem; color:var(--primary); cursor:pointer; line-height:1; padding:0; flex-shrink:0;"
+          >ℹ</button>
         </div>
       </div>
       <!-- Fortschrittsbalken -->
       <div class="score-bar mt-3">
         <div class="score-bar-fill high" id="fortschritt-balken" style="width:10%;"></div>
       </div>
-    </div>
-
-    <!-- Item-Bank-Hinweis -->
-    <div class="alert alert-info mb-3" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:.75rem 1rem; font-size:.85rem; color:#166534; display:flex; gap:.5rem; align-items:flex-start;">
-      <span style="flex-shrink:0;">✅</span>
-      <span>Die Aufgaben stammen aus einer didaktisch geprüften Aufgabendatenbank und passen sich automatisch deinem Niveau an.</span>
+      <!-- Info-Hinweis (standardmäßig versteckt) -->
+      <div id="info-hinweis" style="display:none; margin-top:.75rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:.6rem .9rem; font-size:.8rem; color:#166534;">
+        ✅ Die Aufgaben stammen aus einer didaktisch geprüften Aufgabendatenbank und passen sich automatisch deinem Niveau an.
+      </div>
     </div>
 
     <!-- Frage-Karte -->
     <div id="frage-container"></div>
-
-    <!-- Feedback nach Antwort -->
-    <div id="feedback-bereich" class="hidden mt-4">
-      <div id="feedback-karte" class="card" style="border-left:4px solid #22c55e;">
-        <p id="feedback-text" class="mb-0"></p>
-      </div>
-    </div>
 
     <!-- Weiter-Button -->
     <div class="flex justify-end mt-4">
@@ -94,16 +92,15 @@
   border-bottom-color: var(--primary-dark, #2563eb);
 }
 .lueckentext-input:disabled {
-  color: var(--gray-600);
+  color: var(--gray-500);
   border-bottom-color: var(--gray-300);
+  background: transparent;
 }
-.lueckentext-input.korrekt {
-  border-bottom-color: #22c55e;
-  color: #15803d;
-}
-.lueckentext-input.falsch {
-  border-bottom-color: #ef4444;
-  color: #b91c1c;
+/* Ausgegraut nach Antwort */
+.frage-ausgegraut {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
 }
 </style>
 
@@ -118,6 +115,13 @@ let aktuelleFrageIdx = 0;
 let eingabeAktiv = true;
 let geschaetztesNiveau = 'B1';
 let wartendAufNaechste = false;
+
+// ── Info-Button ────────────────────────────────────────────────────────────
+
+function toggleInfo() {
+  const el = document.getElementById('info-hinweis');
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
 
 // ── Start ──────────────────────────────────────────────────────────────────
 
@@ -147,9 +151,9 @@ function zeigeAktuelleFrage() {
   if (!frage) return;
 
   eingabeAktiv = true;
-  document.getElementById('feedback-bereich').classList.add('hidden');
-  document.getElementById('btn-weiter').disabled = true;
-  document.getElementById('btn-weiter').textContent = 'Antwort eingeben →';
+  const btn = document.getElementById('btn-weiter');
+  btn.disabled = true;
+  btn.textContent = 'Antwort eingeben →';
 
   // Fortschritt
   const frageNr = aktuelleFrageIdx + 1;
@@ -168,7 +172,6 @@ function zeigeAktuelleFrage() {
   const bereitsBeantwortet = antworten[frage.id] !== undefined;
   const gespeicherteAntwort = antworten[frage.id] ?? '';
 
-  // Satz mit Lücke in HTML umwandeln
   const satzHtml = satz.replace('_____', `<input
     type="text"
     id="luecken-input"
@@ -187,7 +190,7 @@ function zeigeAktuelleFrage() {
 
   const container = document.getElementById('frage-container');
   container.innerHTML = `
-    <div class="card">
+    <div class="card${bereitsBeantwortet ? ' frage-ausgegraut' : ''}" id="frage-karte">
       <div class="text-xs text-muted mb-3" style="display:flex; gap:.5rem; align-items:center;">
         <span>Frage ${frageNr}</span>
         ${frage.thema ? `<span style="background:var(--primary-lighter); padding:2px 8px; border-radius:12px;">${frage.thema}</span>` : ''}
@@ -197,17 +200,10 @@ function zeigeAktuelleFrage() {
     </div>
   `;
 
-  // Wenn bereits beantwortet: Feedback sofort zeigen und Input färben
+  // Wenn bereits beantwortet: Weiter-Button aktivieren (kein Feedback)
   if (bereitsBeantwortet) {
-    const istKorrekt = pruefeAntwort(gespeicherteAntwort, frage);
-    const inputEl = document.getElementById('luecken-input');
-    if (inputEl) {
-      inputEl.classList.add(istKorrekt ? 'korrekt' : 'falsch');
-    }
-    zeigeFeedback(istKorrekt, frage.erklaerung, frage.korrekte_antwort_text || frage.optionen?.[frage.korrekt] || '');
-    document.getElementById('btn-weiter').disabled = false;
-    document.getElementById('btn-weiter').textContent =
-      aktuelleFrageIdx < GESAMT_FRAGEN - 1 ? 'Weiter →' : 'Auswertung starten →';
+    btn.disabled = false;
+    btn.textContent = aktuelleFrageIdx < GESAMT_FRAGEN - 1 ? 'Nächste Aufgabe →' : 'Auswertung starten →';
   } else {
     // Fokus auf das Eingabefeld setzen
     setTimeout(() => {
@@ -223,23 +219,19 @@ function onEingabe(inputEl) {
   const val = inputEl.value.trim();
   const btn = document.getElementById('btn-weiter');
   btn.disabled = val.length === 0;
-  if (val.length > 0) {
-    btn.textContent = 'Antwort prüfen →';
-  } else {
-    btn.textContent = 'Antwort eingeben →';
-  }
+  btn.textContent = val.length > 0 ? 'Antwort bestätigen →' : 'Antwort eingeben →';
 }
 
 function onKeyDown(event) {
   if (event.key === 'Enter') {
     const btn = document.getElementById('btn-weiter');
     if (!btn.disabled) {
-      pruefeUndWeiter();
+      weiter();
     }
   }
 }
 
-// ── Antwort prüfen ─────────────────────────────────────────────────────────
+// ── Antwort prüfen (intern, kein UI-Feedback) ──────────────────────────────
 
 function pruefeAntwort(eingabe, frage) {
   const korrektText = (frage.korrekte_antwort_text || frage.optionen?.[frage.korrekt] || '').trim().toLowerCase();
@@ -247,105 +239,77 @@ function pruefeAntwort(eingabe, frage) {
   return eingabeNorm === korrektText;
 }
 
-async function pruefeUndWeiter() {
-  if (!eingabeAktiv || wartendAufNaechste) return;
-
-  const inputEl = document.getElementById('luecken-input');
-  if (!inputEl) return;
-
-  const eingabe = inputEl.value.trim();
-  if (!eingabe) return;
-
-  eingabeAktiv = false;
-  inputEl.disabled = true;
-
-  const frage = alleFragen[aktuelleFrageIdx];
-  antworten[frage.id] = eingabe;
-
-  const istKorrekt = pruefeAntwort(eingabe, frage);
-  const korrektText = frage.korrekte_antwort_text || frage.optionen?.[frage.korrekt] || '';
-  const istLetzte = aktuelleFrageIdx >= GESAMT_FRAGEN - 1;
-  // Nächste Frage im Hintergrund laden, wenn:
-  // - nicht die letzte Frage
-  // - wir noch keine Frage für den nächsten Index haben
-  const naechsterIdx = aktuelleFrageIdx + 1;
-  const naechsteFehlt = naechsterIdx >= alleFragen.length;
-
-  // Input einfärben
-  inputEl.classList.add(istKorrekt ? 'korrekt' : 'falsch');
-
-  // 1. Feedback sofort anzeigen
-  zeigeFeedback(istKorrekt, frage.erklaerung, korrektText);
-
-  // 2. Weiter-Button aktivieren
-  document.getElementById('btn-weiter').disabled = false;
-  document.getElementById('btn-weiter').textContent =
-    istLetzte ? 'Auswertung starten →' : 'Weiter →';
-
-  // 3. Nächste Frage parallel im Hintergrund laden (immer, wenn sie noch fehlt)
-  if (!istLetzte && naechsteFehlt) {
-    wartendAufNaechste = true;
-    const btnWeiter = document.getElementById('btn-weiter');
-
-    const gewaehltIdx = istKorrekt ? frage.korrekt : (frage.korrekt === 0 ? 1 : 0);
-
-    fetch(`/api/m1/${token}/naechste`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ item_id: frage.id, gewaehlt: gewaehltIdx }),
-    })
-    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(data => {
-      if (data.frage) {
-        alleFragen.push(data.frage);
-        geschaetztesNiveau = data.geschaetztes_niveau || geschaetztesNiveau;
-      }
-      wartendAufNaechste = false;
-      if (btnWeiter.dataset.wartet === '1') {
-        btnWeiter.dataset.wartet = '0';
-        btnWeiter.disabled = false;
-        btnWeiter.textContent = 'Weiter →';
-        aktuelleFrageIdx++;
-        zeigeAktuelleFrage(); // setzt auch den frage-container neu
-      }
-    })
-    .catch(e => {
-      console.error('Fehler beim Laden der nächsten Frage:', e);
-      wartendAufNaechste = false;
-      // Trotz Fehler: Weiter-Button reaktivieren
-      if (btnWeiter.dataset.wartet === '1') {
-        btnWeiter.dataset.wartet = '0';
-        btnWeiter.disabled = false;
-        btnWeiter.textContent = 'Weiter →';
-      }
-    });
-  }
-}
-
-// ── Feedback ───────────────────────────────────────────────────────────────
-
-function zeigeFeedback(istKorrekt, erklaerung, korrektText) {
-  const bereich = document.getElementById('feedback-bereich');
-  const karte = document.getElementById('feedback-karte');
-  const text = document.getElementById('feedback-text');
-
-  karte.style.borderLeftColor = istKorrekt ? '#22c55e' : '#ef4444';
-  text.innerHTML = istKorrekt
-    ? `<strong style="color:#22c55e;">✓ Richtig!</strong> ${erklaerung || ''}`
-    : `<strong style="color:#ef4444;">✗ Leider falsch.</strong> Die richtige Antwort ist: <strong>${escapeHtml(korrektText)}</strong>. ${erklaerung || ''}`;
-
-  bereich.classList.remove('hidden');
-}
-
-// ── Navigation ─────────────────────────────────────────────────────────────
+// ── Weiter-Button ──────────────────────────────────────────────────────────
 
 async function weiter() {
-  // Wurde noch keine Antwort geprüft? Dann jetzt prüfen.
+  // Erste Aktion: Antwort noch nicht gespeichert → speichern, ausgrauen, Button umschalten
   if (eingabeAktiv) {
-    await pruefeUndWeiter();
-    return;
+    const inputEl = document.getElementById('luecken-input');
+    if (!inputEl) return;
+    const eingabe = inputEl.value.trim();
+    if (!eingabe) return;
+
+    eingabeAktiv = false;
+    inputEl.disabled = true;
+
+    const frage = alleFragen[aktuelleFrageIdx];
+    antworten[frage.id] = eingabe;
+
+    // Aufgabenkarte ausgrauen
+    const karte = document.getElementById('frage-karte');
+    if (karte) karte.classList.add('frage-ausgegraut');
+
+    const istLetzte = aktuelleFrageIdx >= GESAMT_FRAGEN - 1;
+    const naechsterIdx = aktuelleFrageIdx + 1;
+    const naechsteFehlt = naechsterIdx >= alleFragen.length;
+
+    // Button auf "Nächste Aufgabe" umschalten
+    const btn = document.getElementById('btn-weiter');
+    btn.disabled = false;
+    btn.textContent = istLetzte ? 'Auswertung starten →' : 'Nächste Aufgabe →';
+
+    // Nächste Frage parallel im Hintergrund laden
+    if (!istLetzte && naechsteFehlt) {
+      wartendAufNaechste = true;
+      const istKorrekt = pruefeAntwort(eingabe, frage);
+      const gewaehltIdx = istKorrekt ? frage.korrekt : (frage.korrekt === 0 ? 1 : 0);
+
+      fetch(`/api/m1/${token}/naechste`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item_id: frage.id, gewaehlt: gewaehltIdx }),
+      })
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(data => {
+        if (data.frage) {
+          alleFragen.push(data.frage);
+          geschaetztesNiveau = data.geschaetztes_niveau || geschaetztesNiveau;
+        }
+        wartendAufNaechste = false;
+        // Falls Nutzer schon auf "Nächste Aufgabe" gewartet hat
+        if (btn.dataset.wartet === '1') {
+          btn.dataset.wartet = '0';
+          btn.disabled = false;
+          btn.textContent = 'Nächste Aufgabe →';
+          aktuelleFrageIdx++;
+          zeigeAktuelleFrage();
+        }
+      })
+      .catch(e => {
+        console.error('Fehler beim Laden der nächsten Frage:', e);
+        wartendAufNaechste = false;
+        if (btn.dataset.wartet === '1') {
+          btn.dataset.wartet = '0';
+          btn.disabled = false;
+          btn.textContent = 'Nächste Aufgabe →';
+        }
+      });
+    }
+
+    return; // Warten auf zweiten Klick
   }
 
+  // Zweite Aktion: Weiter zur nächsten Frage oder Endauswertung
   if (aktuelleFrageIdx >= GESAMT_FRAGEN - 1) {
     await sendeEndauswertung();
     return;
@@ -359,16 +323,15 @@ async function weiter() {
     return;
   }
 
-  // Nächste Frage wird noch generiert – Spinner anzeigen
+  // Nächste Frage wird noch geladen – Spinner anzeigen
   const btn = document.getElementById('btn-weiter');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:.5rem;"></span>Frage wird generiert…';
+  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:.5rem;"></span>Wird geladen…';
   btn.dataset.wartet = '1';
-  // Frage-Container mit Lade-Hinweis ersetzen
   document.getElementById('frage-container').innerHTML = `
     <div class="card" style="text-align:center; padding:2rem;">
       <div class="spinner" style="margin:0 auto 1rem;"></div>
-      <p class="text-muted">Nächste Frage wird generiert…</p>
+      <p class="text-muted">Nächste Aufgabe wird geladen…</p>
     </div>
   `;
 }
@@ -378,8 +341,6 @@ async function weiter() {
 async function sendeEndauswertung() {
   document.getElementById('analyse-overlay').classList.remove('hidden');
 
-  // Antworten als {item_id_string: option_index} – für Kompatibilität mit Backend
-  // korrekt = Index der richtigen Antwort, falsch = anderer Index
   const antwortenPayload = {};
   alleFragen.forEach(f => {
     if (antworten[f.id] !== undefined) {
