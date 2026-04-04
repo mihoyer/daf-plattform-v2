@@ -10,7 +10,7 @@ from typing import Optional
 
 from sqlalchemy import (
     Boolean, DateTime, Enum, Float, ForeignKey,
-    Integer, String, Text, func,
+    Integer, JSON, String, Text, func,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -224,6 +224,35 @@ class AdminUser(Base):
     username: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(256), nullable=False)
     erstellt_am: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class M1Item(Base):
+    """Statische Item Bank für Modul 1 (Grammatik & Wortschatz)."""
+    __tablename__ = "m1_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    cefr_level: Mapped[str] = mapped_column(String(2), nullable=False, index=True)  # A1, A2, B1, B2, C1, C2
+    category: Mapped[str] = mapped_column(String(32), nullable=False, index=True)   # Grammatik | Wortschatz
+    topic: Mapped[str] = mapped_column(String(128), nullable=False)
+    context: Mapped[str] = mapped_column(String(128), nullable=False)
+    sentence: Mapped[str] = mapped_column(Text, nullable=False)                     # Satz mit ___ als Lücke
+    options: Mapped[list] = mapped_column(JSON, nullable=False)                     # ["a", "b", "c", "d"]
+    correct_answer: Mapped[str] = mapped_column(String(128), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    erstellt_am: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "cefr_level": self.cefr_level,
+            "category": self.category,
+            "topic": self.topic,
+            "context": self.context,
+            "sentence": self.sentence,
+            "options": self.options,
+            "correct_answer": self.correct_answer,
+            "is_active": self.is_active,
+        }
 
 
 class GutscheinCode(Base):

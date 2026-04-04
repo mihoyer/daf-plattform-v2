@@ -213,8 +213,7 @@ async def get_publishable_key():
 async def m1_items(token: str, db: AsyncSession = Depends(get_db)):
     """
     Startet den adaptiven M1-Test.
-    Gibt 3 Einstiegsfragen (A2/B1/B2 gemischt) zurück.
-    Kein Cache – jeder Aufruf generiert frische Fragen.
+    Gibt 3 Einstiegsfragen (A2/B1/B2 gemischt) aus der Item Bank zurück.
     """
     sess = await session_service.lade_session(db, token)
     if not sess or sess.zahlungs_status not in (ZahlungsStatus.bezahlt, ZahlungsStatus.demo):
@@ -224,15 +223,17 @@ async def m1_items(token: str, db: AsyncSession = Depends(get_db)):
     if not modul:
         raise HTTPException(status_code=404, detail="M1 nicht in diesem Paket.")
 
-    # Adaptiven Test starten – immer frisch generieren (kein Cache)
-    zustand = await m1_service.starte_adaptiven_test(sess.hilfssprache.value)
+    # Adaptiven Test aus Item Bank starten
+    zustand = await m1_service.starte_adaptiven_test(db, sess.hilfssprache.value)
 
-    # Zustand im Modul speichern
+    # Zustand im Modul speichern (inkl. verwendet_ids für Duplikat-Vermeidung)
     modul.set_roh_antworten({
         "alle_fragen": zustand["fragen"],
         "antworten_verlauf": [],
         "naechste_id": zustand["naechste_id"],
         "geschaetztes_niveau": zustand["geschaetztes_niveau"],
+        "verwendet_ids": zustand.get("verwendet_ids", []),
+        "kategorien_verlauf": zustand.get("kategorien_verlauf", []),
     })
     modul.schwierigkeitsgrad = "B1"
     modul.status = ModulStatus.laufend
@@ -269,14 +270,19 @@ async def m1_naechste(token: str, request: Request, db: AsyncSession = Depends(g
     antworten_verlauf = cached.get("antworten_verlauf", [])
     naechste_id = cached.get("naechste_id", 4)
 
+    verwendet_ids = cached.get("verwendet_ids", [])
+    kategorien_verlauf = cached.get("kategorien_verlauf", [])
+
     zustand = {
         "alle_fragen": alle_fragen,
         "antworten_verlauf": antworten_verlauf,
         "naechste_id": naechste_id,
+        "verwendet_ids": verwendet_ids,
+        "kategorien_verlauf": kategorien_verlauf,
     }
 
     ergebnis = await m1_service.naechste_frage(
-        zustand, item_id, gewaehlt, sess.hilfssprache.value
+        db, zustand, item_id, gewaehlt, sess.hilfssprache.value
     )
 
     # Zustand aktualisieren
@@ -286,6 +292,8 @@ async def m1_naechste(token: str, request: Request, db: AsyncSession = Depends(g
         "antworten_verlauf": ergebnis["antworten_verlauf"],
         "naechste_id": ergebnis["naechste_id"],
         "geschaetztes_niveau": ergebnis["geschaetztes_niveau"],
+        "verwendet_ids": ergebnis.get("verwendet_ids", verwendet_ids),
+        "kategorien_verlauf": ergebnis.get("kategorien_verlauf", kategorien_verlauf),
     })
     modul.schwierigkeitsgrad = ergebnis["geschaetztes_niveau"]
     await db.commit()

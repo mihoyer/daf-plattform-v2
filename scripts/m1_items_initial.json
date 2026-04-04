@@ -1,0 +1,2088 @@
+[
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "sein Präsens",
+    "context": "Vorstellung",
+    "sentence": "Ich ___ müde.",
+    "options": [
+      "bin",
+      "bist",
+      "ist",
+      "sind"
+    ],
+    "correct_answer": "bin"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "haben Präsens",
+    "context": "Familie",
+    "sentence": "Du ___ zwei Schwestern.",
+    "options": [
+      "habe",
+      "hast",
+      "hat",
+      "haben"
+    ],
+    "correct_answer": "hast"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Personalpronomen",
+    "context": "Begrüßung",
+    "sentence": "___ bist mein Freund.",
+    "options": [
+      "Du",
+      "Ich",
+      "Er",
+      "Sie"
+    ],
+    "correct_answer": "Du"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Artikel",
+    "context": "Einkauf",
+    "sentence": "Ich kaufe ___ Apfel.",
+    "options": [
+      "der",
+      "die",
+      "das",
+      "den"
+    ],
+    "correct_answer": "den"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Zahlen",
+    "context": "Zahlen",
+    "sentence": "Ich habe ___ Bücher.",
+    "options": [
+      "drei",
+      "dreißig",
+      "dreie",
+      "dreien"
+    ],
+    "correct_answer": "drei"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "sein Präsens",
+    "context": "Vorstellung",
+    "sentence": "Er ___ mein Lehrer.",
+    "options": [
+      "bin",
+      "bist",
+      "ist",
+      "sind"
+    ],
+    "correct_answer": "ist"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Personalpronomen",
+    "context": "Familie",
+    "sentence": "___ haben einen Hund.",
+    "options": [
+      "Wir",
+      "Ihr",
+      "Sie",
+      "Du"
+    ],
+    "correct_answer": "Wir"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "haben Präsens",
+    "context": "Einkauf",
+    "sentence": "Sie ___ einen roten Ball.",
+    "options": [
+      "habe",
+      "hast",
+      "hat",
+      "haben"
+    ],
+    "correct_answer": "hat"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Artikel",
+    "context": "Einkauf",
+    "sentence": "Ich nehme ___ Butter.",
+    "options": [
+      "der",
+      "die",
+      "das",
+      "den"
+    ],
+    "correct_answer": "die"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "sein Präsens",
+    "context": "Begrüßung",
+    "sentence": "Wir ___ Freunde.",
+    "options": [
+      "bin",
+      "bist",
+      "ist",
+      "sind"
+    ],
+    "correct_answer": "sind"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Zahlen",
+    "context": "Zahlen",
+    "sentence": "Ich habe ___ Euro.",
+    "options": [
+      "zehn",
+      "zehner",
+      "zehns",
+      "zehne"
+    ],
+    "correct_answer": "zehn"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Personalpronomen",
+    "context": "Vorstellung",
+    "sentence": "___ heißt Anna.",
+    "options": [
+      "Sie",
+      "Du",
+      "Er",
+      "Ich"
+    ],
+    "correct_answer": "Sie"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "haben Präsens",
+    "context": "Familie",
+    "sentence": "Wir ___ ein Haus.",
+    "options": [
+      "habe",
+      "hast",
+      "hat",
+      "haben"
+    ],
+    "correct_answer": "haben"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Artikel",
+    "context": "Einkauf",
+    "sentence": "Möchtest du ___ Brot?",
+    "options": [
+      "der",
+      "die",
+      "das",
+      "den"
+    ],
+    "correct_answer": "das"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "sein Präsens",
+    "context": "Familie",
+    "sentence": "Ihr ___ meine Freunde.",
+    "options": [
+      "bin",
+      "bist",
+      "ist",
+      "seid"
+    ],
+    "correct_answer": "seid"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Farben",
+    "context": "Einkauf",
+    "sentence": "Der Ball ist ___.",
+    "options": [
+      "blau",
+      "blauer",
+      "blaue",
+      "blauen"
+    ],
+    "correct_answer": "blau"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Personalpronomen",
+    "context": "Begrüßung",
+    "sentence": "___ komme aus Spanien.",
+    "options": [
+      "Ich",
+      "Du",
+      "Er",
+      "Sie"
+    ],
+    "correct_answer": "Ich"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "haben Präsens",
+    "context": "Familie",
+    "sentence": "Du ___ viele Freunde.",
+    "options": [
+      "habe",
+      "hast",
+      "hat",
+      "haben"
+    ],
+    "correct_answer": "hast"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Artikel",
+    "context": "Einkauf",
+    "sentence": "Ich kaufe ___ Milch.",
+    "options": [
+      "der",
+      "die",
+      "das",
+      "den"
+    ],
+    "correct_answer": "die"
+  },
+  {
+    "cefr_level": "A1",
+    "category": "Grammatik",
+    "topic": "Zahlen",
+    "context": "Zahlen",
+    "sentence": "Wir zahlen ___ Euro.",
+    "options": [
+      "fünf",
+      "fünfe",
+      "fünfen",
+      "fünfer"
+    ],
+    "correct_answer": "fünf"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Perfekt mit haben/sein",
+    "context": "Supermarkt",
+    "sentence": "Ich ___ heute im Supermarkt viele Äpfel gekauft.",
+    "options": [
+      "habe",
+      "bin",
+      "war",
+      "wurde"
+    ],
+    "correct_answer": "habe"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Perfekt mit haben/sein",
+    "context": "Arztbesuch",
+    "sentence": "Mein Bruder ___ gestern zum Arzt gegangen.",
+    "options": [
+      "ist",
+      "hat",
+      "war",
+      "wurde"
+    ],
+    "correct_answer": "ist"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Akkusativ/Dativ",
+    "context": "Familie",
+    "sentence": "Ich gebe ___ Mutter das Geschenk.",
+    "options": [
+      "die",
+      "der",
+      "den",
+      "dem"
+    ],
+    "correct_answer": "der"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Akkusativ/Dativ",
+    "context": "Arbeit",
+    "sentence": "Kannst du bitte ___ Chef die E-Mail schicken?",
+    "options": [
+      "der",
+      "den",
+      "dem",
+      "die"
+    ],
+    "correct_answer": "dem"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Modalverben",
+    "context": "Wohnungssuche",
+    "sentence": "Ich ___ morgen die Wohnung besichtigen.",
+    "options": [
+      "muss",
+      "möchte",
+      "kannst",
+      "sollst"
+    ],
+    "correct_answer": "möchte"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Modalverben",
+    "context": "Arztbesuch",
+    "sentence": "Du ___ jeden Tag deine Medizin nehmen.",
+    "options": [
+      "musst",
+      "kann",
+      "mögen",
+      "soll"
+    ],
+    "correct_answer": "musst"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Trennbare Verben",
+    "context": "Arbeit",
+    "sentence": "Ich ___ morgen früh mit dem Projekt an.",
+    "options": [
+      "fange",
+      "anfange",
+      "fange an",
+      "fange an zu"
+    ],
+    "correct_answer": "fange an"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Trennbare Verben",
+    "context": "Familie",
+    "sentence": "Am Wochenende ___ wir die Wohnung auf.",
+    "options": [
+      "räumen",
+      "räumen auf",
+      "räumen auf zu",
+      "aufräumen"
+    ],
+    "correct_answer": "räumen auf"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Wechselpräpositionen",
+    "context": "Wohnungssuche",
+    "sentence": "Das Sofa steht ___ dem Fenster.",
+    "options": [
+      "in",
+      "auf",
+      "neben",
+      "unter"
+    ],
+    "correct_answer": "neben"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Wechselpräpositionen",
+    "context": "Supermarkt",
+    "sentence": "Ich stelle die Milch ___ den Kühlschrank.",
+    "options": [
+      "in",
+      "an",
+      "auf",
+      "über"
+    ],
+    "correct_answer": "in"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Komparativ",
+    "context": "Familie",
+    "sentence": "Mein Bruder ist ___ als ich.",
+    "options": [
+      "großer",
+      "größer",
+      "groß",
+      "größte"
+    ],
+    "correct_answer": "größer"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Komparativ",
+    "context": "Arbeit",
+    "sentence": "Das neue Büro ist ___ als das alte.",
+    "options": [
+      "heller",
+      "hell",
+      "helle",
+      "hellen"
+    ],
+    "correct_answer": "heller"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Perfekt mit haben/sein",
+    "context": "Arztbesuch",
+    "sentence": "Wir ___ gestern lange beim Arzt gewartet.",
+    "options": [
+      "haben",
+      "sind",
+      "hat",
+      "waren"
+    ],
+    "correct_answer": "haben"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Akkusativ/Dativ",
+    "context": "Supermarkt",
+    "sentence": "Ich nehme ___ Kiste mit zum Auto.",
+    "options": [
+      "die",
+      "der",
+      "den",
+      "dem"
+    ],
+    "correct_answer": "die"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Modalverben",
+    "context": "Arbeit",
+    "sentence": "Sie ___ heute länger arbeiten.",
+    "options": [
+      "müssen",
+      "muss",
+      "kann",
+      "sollen"
+    ],
+    "correct_answer": "muss"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Trennbare Verben",
+    "context": "Wohnungssuche",
+    "sentence": "Wir ___ morgen die Anzeige auf.",
+    "options": [
+      "geben",
+      "aufgeben",
+      "geben auf",
+      "aufgeben zu"
+    ],
+    "correct_answer": "geben auf"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Wechselpräpositionen",
+    "context": "Familie",
+    "sentence": "Die Kinder spielen ___ dem Garten.",
+    "options": [
+      "auf",
+      "in",
+      "unter",
+      "über"
+    ],
+    "correct_answer": "in"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Komparativ",
+    "context": "Supermarkt",
+    "sentence": "Die Äpfel sind heute ___ als gestern.",
+    "options": [
+      "frischer",
+      "frisch",
+      "frische",
+      "frischere"
+    ],
+    "correct_answer": "frischer"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Perfekt mit haben/sein",
+    "context": "Arbeit",
+    "sentence": "Er ___ den ganzen Tag im Büro gearbeitet.",
+    "options": [
+      "hat",
+      "ist",
+      "war",
+      "hatte"
+    ],
+    "correct_answer": "hat"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Grammatik",
+    "topic": "Akkusativ/Dativ",
+    "context": "Familie",
+    "sentence": "Ich habe ___ Vater ein Buch geschenkt.",
+    "options": [
+      "den",
+      "dem",
+      "der",
+      "die"
+    ],
+    "correct_answer": "dem"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Verben im Alltag",
+    "context": "Einkaufen",
+    "sentence": "Ich möchte bitte die Rechnung ___.",
+    "options": [
+      "bezahlen",
+      "kaufen",
+      "nehmen",
+      "geben"
+    ],
+    "correct_answer": "bezahlen"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Nomen im Alltag",
+    "context": "Arzt",
+    "sentence": "Der ___ tut weh, deshalb gehe ich zum Arzt.",
+    "options": [
+      "Kopf",
+      "Stuhl",
+      "Tisch",
+      "Buch"
+    ],
+    "correct_answer": "Kopf"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Adjektive im Alltag",
+    "context": "Familie",
+    "sentence": "Mein Bruder ist sehr ___.",
+    "options": [
+      "nett",
+      "laut",
+      "hoch",
+      "schwer"
+    ],
+    "correct_answer": "nett"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Verben im Alltag",
+    "context": "Arbeit",
+    "sentence": "Ich muss jeden Tag um 8 Uhr ___.",
+    "options": [
+      "arbeiten",
+      "spielen",
+      "schlafen",
+      "fahren"
+    ],
+    "correct_answer": "arbeiten"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Nomen im Alltag",
+    "context": "Freizeit",
+    "sentence": "Wir gehen am Wochenende ins ___.",
+    "options": [
+      "Kino",
+      "Auto",
+      "Bett",
+      "Haus"
+    ],
+    "correct_answer": "Kino"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Adjektive im Alltag",
+    "context": "Einkaufen",
+    "sentence": "Die Äpfel sind heute sehr ___.",
+    "options": [
+      "frisch",
+      "alt",
+      "kalt",
+      "laut"
+    ],
+    "correct_answer": "frisch"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Verben im Alltag",
+    "context": "Familie",
+    "sentence": "Am Sonntag ___ wir zusammen zu Mittag.",
+    "options": [
+      "essen",
+      "trinken",
+      "schreiben",
+      "fahren"
+    ],
+    "correct_answer": "essen"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Nomen im Alltag",
+    "context": "Arzt",
+    "sentence": "Der Arzt schreibt mir ein ___.",
+    "options": [
+      "Rezept",
+      "Buch",
+      "Stuhl",
+      "Tasche"
+    ],
+    "correct_answer": "Rezept"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Adjektive im Alltag",
+    "context": "Freizeit",
+    "sentence": "Das Wetter ist heute sehr ___.",
+    "options": [
+      "schön",
+      "schwer",
+      "laut",
+      "langsam"
+    ],
+    "correct_answer": "schön"
+  },
+  {
+    "cefr_level": "A2",
+    "category": "Wortschatz",
+    "topic": "Verben im Alltag",
+    "context": "Einkaufen",
+    "sentence": "Kannst du bitte das Brot ___?",
+    "options": [
+      "holen",
+      "nehmen",
+      "lesen",
+      "schreiben"
+    ],
+    "correct_answer": "holen"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Kausalsätze mit weil",
+    "context": "Jobcenter",
+    "sentence": "Sie kann den Termin nicht wahrnehmen, ___ sie einen wichtigen Arztbesuch hat.",
+    "options": [
+      "weil",
+      "obwohl",
+      "damit",
+      "wenn"
+    ],
+    "correct_answer": "weil"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Finalsätze mit damit",
+    "context": "Gespräch unter Kollegen",
+    "sentence": "Ich erkläre dir die Aufgaben noch einmal, ___ du alles verstehst.",
+    "options": [
+      "damit",
+      "weil",
+      "obwohl",
+      "wenn"
+    ],
+    "correct_answer": "damit"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Konzessivsätze mit obwohl",
+    "context": "Pflege",
+    "sentence": "___ er müde ist, arbeitet er weiter.",
+    "options": [
+      "Obwohl",
+      "Weil",
+      "Damit",
+      "Dass"
+    ],
+    "correct_answer": "Obwohl"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Temporalsätze",
+    "context": "Alltag",
+    "sentence": "___ ich nach Hause komme, rufe ich dich an.",
+    "options": [
+      "Wenn",
+      "Weil",
+      "Damit",
+      "Obwohl"
+    ],
+    "correct_answer": "Wenn"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Konjunktiv II würde",
+    "context": "Zeitungsnotiz",
+    "sentence": "Er ___ mehr arbeiten, wenn er mehr Geld verdienen wollte.",
+    "options": [
+      "würde",
+      "wird",
+      "war",
+      "hat"
+    ],
+    "correct_answer": "würde"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Passiv Präsens",
+    "context": "Jobcenter",
+    "sentence": "Die Anträge ___ jeden Monat geprüft.",
+    "options": [
+      "werden",
+      "werden wird",
+      "werden wird",
+      "worden"
+    ],
+    "correct_answer": "werden"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Genitiv",
+    "context": "Gespräch unter Kollegen",
+    "sentence": "Das Büro ___ Chefs ist im dritten Stock.",
+    "options": [
+      "des",
+      "der",
+      "dem",
+      "den"
+    ],
+    "correct_answer": "des"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Relativsätze",
+    "context": "Pflege",
+    "sentence": "Die Mitarbeiterin, ___ die Patienten sehr mögen, ist krank.",
+    "options": [
+      "die",
+      "das",
+      "der",
+      "den"
+    ],
+    "correct_answer": "die"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Indirekte Rede",
+    "context": "E-Mail",
+    "sentence": "Er sagt, er ___ morgen nicht kommen können.",
+    "options": [
+      "werde",
+      "würde",
+      "wird",
+      "wäre"
+    ],
+    "correct_answer": "würde"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Kausalsätze mit da",
+    "context": "Alltag",
+    "sentence": "___ es regnet, bleiben wir heute zu Hause.",
+    "options": [
+      "Da",
+      "Weil",
+      "Wenn",
+      "Damit"
+    ],
+    "correct_answer": "Da"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Finalsätze mit um...zu",
+    "context": "Gespräch unter Kollegen",
+    "sentence": "Er lernt Deutsch, ___ bessere Chancen auf dem Arbeitsmarkt zu haben.",
+    "options": [
+      "um",
+      "weil",
+      "obwohl",
+      "damit"
+    ],
+    "correct_answer": "um"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Konzessivsätze mit obwohl",
+    "context": "Jobcenter",
+    "sentence": "___ sie wenig Geld hat, kauft sie oft neue Kleider.",
+    "options": [
+      "Obwohl",
+      "Weil",
+      "Damit",
+      "Wenn"
+    ],
+    "correct_answer": "Obwohl"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Temporalsätze",
+    "context": "Pflege",
+    "sentence": "___ der Arzt kommt, müssen alle Patienten warten.",
+    "options": [
+      "Bis",
+      "Weil",
+      "Obwohl",
+      "Damit"
+    ],
+    "correct_answer": "Bis"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Konjunktiv II würde",
+    "context": "Zeitungsnotiz",
+    "sentence": "Ich ___ gern helfen, wenn ich mehr Zeit hätte.",
+    "options": [
+      "würde",
+      "werde",
+      "wäre",
+      "habe"
+    ],
+    "correct_answer": "würde"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Passiv Präsens",
+    "context": "E-Mail",
+    "sentence": "Der Bericht ___ jeden Freitag verschickt.",
+    "options": [
+      "wird",
+      "werden",
+      "wurde",
+      "worden"
+    ],
+    "correct_answer": "wird"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Genitiv",
+    "context": "Alltag",
+    "sentence": "Das ist das Auto ___ Nachbarn.",
+    "options": [
+      "des",
+      "der",
+      "dem",
+      "den"
+    ],
+    "correct_answer": "des"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Relativsätze",
+    "context": "Gespräch unter Kollegen",
+    "sentence": "Das ist die Frau, ___ gestern angerufen hat.",
+    "options": [
+      "die",
+      "das",
+      "der",
+      "den"
+    ],
+    "correct_answer": "die"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Indirekte Rede",
+    "context": "Pflege",
+    "sentence": "Die Pflegekraft sagt, sie ___ morgen früh anfangen.",
+    "options": [
+      "werde",
+      "würde",
+      "wird",
+      "war"
+    ],
+    "correct_answer": "würde"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Kausalsätze mit weil",
+    "context": "Jobcenter",
+    "sentence": "Das Amt hilft, ___ viele Menschen arbeitslos sind.",
+    "options": [
+      "weil",
+      "damit",
+      "obwohl",
+      "wenn"
+    ],
+    "correct_answer": "weil"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Grammatik",
+    "topic": "Finalsätze mit damit",
+    "context": "Zeitungsnotiz",
+    "sentence": "Die Regierung ändert die Gesetze, ___ die Situation sich verbessert.",
+    "options": [
+      "damit",
+      "weil",
+      "obwohl",
+      "wenn"
+    ],
+    "correct_answer": "damit"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "Nomen-Verb-Verbindungen",
+    "context": "Beruf",
+    "sentence": "Er muss morgen einen Bericht ___.",
+    "options": [
+      "schreiben",
+      "machen",
+      "nehmen",
+      "bekommen"
+    ],
+    "correct_answer": "schreiben"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "häufige Kollokationen",
+    "context": "Ausbildung",
+    "sentence": "Während der Ausbildung lernt man oft neue ___ kennen.",
+    "options": [
+      "Freunde",
+      "Fähigkeiten",
+      "Hobbys",
+      "Urlaube"
+    ],
+    "correct_answer": "Fähigkeiten"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "Synonyme",
+    "context": "Behördengänge",
+    "sentence": "Beim Amt muss man oft lange ___ warten.",
+    "options": [
+      "Zeiten",
+      "Schlangen",
+      "Reihen",
+      "Wartezeiten"
+    ],
+    "correct_answer": "Wartezeiten"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "Antonyme",
+    "context": "gesellschaftliches Leben",
+    "sentence": "In der Freizeit fühlt sie sich oft ___ und möchte Freunde treffen.",
+    "options": [
+      "allein",
+      "glücklich",
+      "müde",
+      "zufrieden"
+    ],
+    "correct_answer": "allein"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "Nomen-Verb-Verbindungen",
+    "context": "Beruf",
+    "sentence": "Der Chef hat das Projekt gestern offiziell ___ .",
+    "options": [
+      "abgeschlossen",
+      "begonnen",
+      "abgesagt",
+      "geleitet"
+    ],
+    "correct_answer": "begonnen"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "häufige Kollokationen",
+    "context": "Ausbildung",
+    "sentence": "Man soll die Prüfungen gut ___, um zu bestehen.",
+    "options": [
+      "vorbereiten",
+      "weggehen",
+      "vergessen",
+      "warten"
+    ],
+    "correct_answer": "vorbereiten"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "Synonyme",
+    "context": "Behördengänge",
+    "sentence": "Für den Antrag braucht man oft eine Bestätigung oder einen ___ .",
+    "options": [
+      "Nachweis",
+      "Beleg",
+      "Ausweis",
+      "Pass"
+    ],
+    "correct_answer": "Nachweis"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "Antonyme",
+    "context": "gesellschaftliches Leben",
+    "sentence": "Im Team arbeiten bedeutet, nicht nur für sich selbst, sondern ___ zu denken.",
+    "options": [
+      "gemeinsam",
+      "allein",
+      "schnell",
+      "laut"
+    ],
+    "correct_answer": "gemeinsam"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "Nomen-Verb-Verbindungen",
+    "context": "Beruf",
+    "sentence": "Er hat den Termin mit dem Kunden ___ .",
+    "options": [
+      "vereinbart",
+      "gewonnen",
+      "verlieren",
+      "verloren"
+    ],
+    "correct_answer": "vereinbart"
+  },
+  {
+    "cefr_level": "B1",
+    "category": "Wortschatz",
+    "topic": "häufige Kollokationen",
+    "context": "Behördengänge",
+    "sentence": "Für den neuen Pass muss man einen Termin beim Amt ___ .",
+    "options": [
+      "vereinbaren",
+      "vergessen",
+      "verlieren",
+      "bekommen"
+    ],
+    "correct_answer": "vereinbaren"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Konjunktiv II starke Verben",
+    "context": "Interview",
+    "sentence": "Wenn er das Angebot ___, hätte er den Vertrag unterschrieben.",
+    "options": [
+      "angenommen",
+      "annehmen",
+      "genommen",
+      "nähme"
+    ],
+    "correct_answer": "nähme"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Passiv Perfekt",
+    "context": "Zeitungsartikel",
+    "sentence": "Der Bericht ___ gestern von der Redaktion fertiggestellt.",
+    "options": [
+      "ist",
+      "wurde",
+      "worden",
+      "ist worden"
+    ],
+    "correct_answer": "ist worden"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Relativsatz im Genitiv",
+    "context": "Sachtext",
+    "sentence": "Das Ergebnis, ___ der Studie wurde veröffentlicht, zeigt klare Tendenzen.",
+    "options": [
+      "dessen",
+      "deren",
+      "den",
+      "die"
+    ],
+    "correct_answer": "dessen"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Präpositionaladverbien",
+    "context": "Zeitungsartikel",
+    "sentence": "Die Diskussion verlief völlig ___, niemand konnte sich einigen.",
+    "options": [
+      "daran",
+      "darauf",
+      "dagegen",
+      "danach"
+    ],
+    "correct_answer": "dagegen"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Partizipialkonstruktionen",
+    "context": "Sachtext",
+    "sentence": "___ die Daten sorgfältig analysiert, konnten die Forscher neue Erkenntnisse gewinnen.",
+    "options": [
+      "Nachdem",
+      "Analysiert",
+      "Analysierende",
+      "Analysierend"
+    ],
+    "correct_answer": "Nachdem"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Nominalisierung",
+    "context": "Formelles Schreiben",
+    "sentence": "Die ___ des Projekts erfolgte aufgrund finanzieller Schwierigkeiten.",
+    "options": [
+      "Abschluss",
+      "Abschließen",
+      "Abgeschlossen",
+      "Abschließend"
+    ],
+    "correct_answer": "Abschluss"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Konjunktiv II starke Verben",
+    "context": "Interview",
+    "sentence": "Hätten Sie mir früher Bescheid ___, hätte ich mich vorbereiten können.",
+    "options": [
+      "gegeben",
+      "geben",
+      "gäben",
+      "gäbe"
+    ],
+    "correct_answer": "gegeben"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Passiv Präteritum",
+    "context": "Zeitungsartikel",
+    "sentence": "Der Vertrag ___ im letzten Jahr von beiden Parteien unterschrieben.",
+    "options": [
+      "wurde",
+      "war",
+      "ist",
+      "worden"
+    ],
+    "correct_answer": "wurde"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Relativsatz Dativ",
+    "context": "Sachtext",
+    "sentence": "Das Unternehmen, ___ wir die Daten geliefert haben, ist sehr zufrieden.",
+    "options": [
+      "wem",
+      "den",
+      "dessen",
+      "dem"
+    ],
+    "correct_answer": "dem"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Relativsatz Genitiv",
+    "context": "Formelles Schreiben",
+    "sentence": "Die Ergebnisse, ___ der Bericht basiert, sind überzeugend.",
+    "options": [
+      "auf die",
+      "auf denen",
+      "auf deren",
+      "auf deren"
+    ],
+    "correct_answer": "auf denen"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Präpositionaladverbien",
+    "context": "Interview",
+    "sentence": "Er hat sich stets ___ gegen Kritik verteidigt.",
+    "options": [
+      "dagegen",
+      "darauf",
+      "daran",
+      "danach"
+    ],
+    "correct_answer": "dagegen"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Partizipialkonstruktionen",
+    "context": "Sachtext",
+    "sentence": "___ die Ergebnisse überprüft, konnte die Hypothese bestätigt werden.",
+    "options": [
+      "Nachdem",
+      "Überprüft",
+      "Überprüfend",
+      "Überprüfte"
+    ],
+    "correct_answer": "Nachdem"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Nominalisierung",
+    "context": "Zeitungsartikel",
+    "sentence": "Die ___ der neuen Regelung hat viele Diskussionen ausgelöst.",
+    "options": [
+      "Einführung",
+      "Einführen",
+      "Eingeführt",
+      "Einführend"
+    ],
+    "correct_answer": "Einführung"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Grammatik",
+    "topic": "Konjunktiv II starke Verben",
+    "context": "Formelles Schreiben",
+    "sentence": "Ich ___ Ihnen gern weitergeholfen, wenn ich die Unterlagen erhalten hätte.",
+    "options": [
+      "würde",
+      "hätte",
+      "wäre",
+      "könnte"
+    ],
+    "correct_answer": "hätte"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "Nomen-Verb-Verbindungen",
+    "context": "Beruf",
+    "sentence": "Um den Vertrag abzuschließen, muss der Geschäftsführer noch eine finale ___ treffen.",
+    "options": [
+      "Entscheidung",
+      "Erklärung",
+      "Anmeldung",
+      "Erlaubnis"
+    ],
+    "correct_answer": "Entscheidung"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "feste Redewendungen",
+    "context": "Behördengänge",
+    "sentence": "Bei Problemen mit dem Amt sollte man nicht zögern, sich an den Kundenservice zu ___.",
+    "options": [
+      "wenden",
+      "ändern",
+      "warten",
+      "leiten"
+    ],
+    "correct_answer": "wenden"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "präzise Verben",
+    "context": "Ausbildung",
+    "sentence": "Die Auszubildenden ___ jeden Monat an einer praktischen Schulung teil.",
+    "options": [
+      "nehmen",
+      "besuchen",
+      "führen",
+      "erreichen"
+    ],
+    "correct_answer": "besuchen"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "Fachwortschatz Beruf",
+    "context": "Beruf",
+    "sentence": "Der Ingenieur muss die technischen Zeichnungen sorgfältig ___.",
+    "options": [
+      "prüfen",
+      "finden",
+      "anbieten",
+      "erarbeiten"
+    ],
+    "correct_answer": "prüfen"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "Nomen-Verb-Verbindungen",
+    "context": "gesellschaftliches Leben",
+    "sentence": "Viele Bürger nehmen regelmäßig an öffentlichen Diskussionen ___, um ihre Meinung zu äußern.",
+    "options": [
+      "teil",
+      "auf",
+      "an",
+      "aus"
+    ],
+    "correct_answer": "teil"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "feste Redewendungen",
+    "context": "Behördengänge",
+    "sentence": "Für die Beantragung des Reisepasses ist ein persönliches Erscheinen ___ erforderlich.",
+    "options": [
+      "in der Regel",
+      "in der Weise",
+      "im Prinzip",
+      "im Verhältnis"
+    ],
+    "correct_answer": "in der Regel"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "präzise Verben",
+    "context": "Ausbildung",
+    "sentence": "Der Ausbilder ___ den Lernfortschritt der Teilnehmer regelmäßig.",
+    "options": [
+      "überprüft",
+      "überlegt",
+      "überfällt",
+      "übersteht"
+    ],
+    "correct_answer": "überprüft"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "Fachwortschatz Beruf",
+    "context": "Beruf",
+    "sentence": "Die Personalabteilung kümmert sich um die ___ neuer Mitarbeiter.",
+    "options": [
+      "Einstellung",
+      "Entdeckung",
+      "Entwicklung",
+      "Entschädigung"
+    ],
+    "correct_answer": "Einstellung"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "Nomen-Verb-Verbindungen",
+    "context": "gesellschaftliches Leben",
+    "sentence": "Er hat großen Einfluss auf die Politik und nimmt oft an wichtigen ___ teil.",
+    "options": [
+      "Verhandlungen",
+      "Verordnungen",
+      "Verwaltungen",
+      "Veranstaltungen"
+    ],
+    "correct_answer": "Verhandlungen"
+  },
+  {
+    "cefr_level": "B2",
+    "category": "Wortschatz",
+    "topic": "feste Redewendungen",
+    "context": "Behördengänge",
+    "sentence": "Um die Frist einzuhalten, sollte man alle Unterlagen rechtzeitig ___.",
+    "options": [
+      "einreichen",
+      "einleiten",
+      "einsehen",
+      "einholen"
+    ],
+    "correct_answer": "einreichen"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Konzessiver Konjunktiv",
+    "context": "Essay",
+    "sentence": "___ er auch wenig Zeit hatte, schrieb er den Artikel sehr sorgfältig.",
+    "options": [
+      "Obgleich",
+      "Obschon",
+      "Auch wenn",
+      "Obwohl"
+    ],
+    "correct_answer": "Obgleich"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Infinitivkonstruktionen mit zu",
+    "context": "Qualitätsjournalismus",
+    "sentence": "Es ist wichtig, ___ die Fakten sorgfältig zu überprüfen, bevor man veröffentlicht.",
+    "options": [
+      "zu",
+      "den",
+      "die",
+      "des"
+    ],
+    "correct_answer": "zu"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Nominalstil vs. Verbalstil",
+    "context": "Fachtext",
+    "sentence": "Die ___ der Datenanalyse erleichtert das Verständnis komplexer Zusammenhänge.",
+    "options": [
+      "Durchführung",
+      "durchzuführen",
+      "durchführt",
+      "durchführend"
+    ],
+    "correct_answer": "Durchführung"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "seltene Genitiv-Präpositionen",
+    "context": "Sachbuch",
+    "sentence": "___ der neuen Studienergebnisse wurde die Theorie überarbeitet.",
+    "options": [
+      "Anlässlich",
+      "Während",
+      "Trotz",
+      "Nach"
+    ],
+    "correct_answer": "Anlässlich"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Subjunktoren sofern/insofern",
+    "context": "Qualitätsjournalismus",
+    "sentence": "___ die Quellen verifiziert sind, kann der Artikel veröffentlicht werden.",
+    "options": [
+      "Sobald",
+      "Soweit",
+      "Sofern",
+      "Weil"
+    ],
+    "correct_answer": "Sofern"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Doppelkonjunktionen sowohl...als auch",
+    "context": "Essay",
+    "sentence": "Der Artikel behandelt ___ die Ursachen ___ die Folgen des Klimawandels.",
+    "options": [
+      "sowohl ... oder",
+      "weder ... noch",
+      "sowohl ... als auch",
+      "entweder ... oder"
+    ],
+    "correct_answer": "sowohl ... als auch"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Infinitivkonstruktionen mit zu",
+    "context": "Fachtext",
+    "sentence": "Er versuchte, ___ die komplexen Zusammenhänge einfach zu erklären.",
+    "options": [
+      "den",
+      "zu",
+      "die",
+      "des"
+    ],
+    "correct_answer": "zu"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "seltene Genitiv-Präpositionen",
+    "context": "Sachtext",
+    "sentence": "___ der Diskussion über Medienethik wurden neue Leitlinien entwickelt.",
+    "options": [
+      "Infolge",
+      "Während",
+      "Trotz",
+      "Gegenüber"
+    ],
+    "correct_answer": "Infolge"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Nominalstil vs. Verbalstil",
+    "context": "Essay",
+    "sentence": "Die ___ der Argumentation ist entscheidend für die Überzeugungskraft des Textes.",
+    "options": [
+      "Strukturierung",
+      "strukturieren",
+      "strukturiert",
+      "strukturierend"
+    ],
+    "correct_answer": "Strukturierung"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Konzessiver Konjunktiv",
+    "context": "Qualitätsjournalismus",
+    "sentence": "___ der Bericht kritisch hinterfragt werde, bleibt seine Aussage gültig.",
+    "options": [
+      "Obgleich",
+      "Obschon",
+      "Auch wenn",
+      "Obwohl"
+    ],
+    "correct_answer": "Auch wenn"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Subjunktoren sofern/insofern",
+    "context": "Fachtext",
+    "sentence": "___ die Daten vollständig erfasst sind, lässt sich eine genaue Analyse durchführen.",
+    "options": [
+      "Sobald",
+      "Soweit",
+      "Sofern",
+      "Weil"
+    ],
+    "correct_answer": "Sofern"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Doppelkonjunktionen sowohl...als auch",
+    "context": "Sachbuch",
+    "sentence": "Die Studie berücksichtigt ___ qualitative ___ quantitative Methoden.",
+    "options": [
+      "sowohl ... oder",
+      "weder ... noch",
+      "sowohl ... als auch",
+      "entweder ... oder"
+    ],
+    "correct_answer": "sowohl ... als auch"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "seltene Genitiv-Präpositionen",
+    "context": "Essay",
+    "sentence": "___ der jüngsten Entwicklungen ist eine Neubewertung notwendig.",
+    "options": [
+      "Hinsichtlich",
+      "Während",
+      "Trotz",
+      "Nach"
+    ],
+    "correct_answer": "Hinsichtlich"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Nominalstil vs. Verbalstil",
+    "context": "Qualitätsjournalismus",
+    "sentence": "Die ___ der Fakten ist für die Glaubwürdigkeit essenziell.",
+    "options": [
+      "Überprüfung",
+      "überprüfen",
+      "überprüft",
+      "überprüfend"
+    ],
+    "correct_answer": "Überprüfung"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Grammatik",
+    "topic": "Konzessiver Konjunktiv",
+    "context": "Fachtext",
+    "sentence": "___ er keine direkten Beweise vorlegen konnte, wurde seine Hypothese diskutiert.",
+    "options": [
+      "Obgleich",
+      "Obschon",
+      "Auch wenn",
+      "Obwohl"
+    ],
+    "correct_answer": "Obwohl"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Fachvokabular",
+    "context": "Qualitätsjournalismus",
+    "sentence": "Der Journalist bemühte sich, die Informationen möglichst ___ und ohne persönliche Wertung darzustellen.",
+    "options": [
+      "subjektiv",
+      "objektiv",
+      "emotional",
+      "parteilich"
+    ],
+    "correct_answer": "objektiv"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Register",
+    "context": "Sachbuch",
+    "sentence": "Im Gegensatz zum umgangssprachlichen Ausdruck ‚kapiert‘ verwendet der Autor in seinem Text die ___ Form ‚verstanden‘.",
+    "options": [
+      "informelle",
+      "formelle",
+      "idiomatische",
+      "umgangssprachliche"
+    ],
+    "correct_answer": "formelle"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Nuancierte Bedeutungsunterschiede",
+    "context": "Fachtext",
+    "sentence": "Der Begriff ‚Effizienz‘ beschreibt im Gegensatz zu ‚Effektivität‘ vor allem das ___ mit Ressourcen.",
+    "options": [
+      "Ziel",
+      "Ergebnis",
+      "Verhältnis",
+      "Verwendung"
+    ],
+    "correct_answer": "Verwendung"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Idiome",
+    "context": "Qualitätsjournalismus",
+    "sentence": "Der Artikel bringt das Thema auf den Punkt und lässt keine Fragen ___ .",
+    "options": [
+      "offen",
+      "stehen",
+      "liegen",
+      "fallen"
+    ],
+    "correct_answer": "stehen"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Fachvokabular",
+    "context": "Sachbuch",
+    "sentence": "Die Autorin verwendet häufig den Begriff ‚Paradigma‘, um ein ___ Denkmodell zu beschreiben.",
+    "options": [
+      "veraltetes",
+      "nebulöses",
+      "herrschendes",
+      "unspezifisches"
+    ],
+    "correct_answer": "herrschendes"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Register",
+    "context": "Fachtext",
+    "sentence": "In wissenschaftlichen Texten wird der Ausdruck ‚machen‘ oft durch das formellere Verb ‚___‘ ersetzt.",
+    "options": [
+      "erledigen",
+      "verrichten",
+      "ausführen",
+      "bewirken"
+    ],
+    "correct_answer": "ausführen"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Nuancierte Bedeutungsunterschiede",
+    "context": "Qualitätsjournalismus",
+    "sentence": "Während ‚Information‘ neutral Daten bezeichnet, impliziert ‚___‘ eine gezielte und oft tiefgründige Recherche.",
+    "options": [
+      "Berichterstattung",
+      "Nachricht",
+      "Reportage",
+      "Recherche"
+    ],
+    "correct_answer": "Recherche"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Idiome",
+    "context": "Sachbuch",
+    "sentence": "Das Buch zeigt, wie man komplexe Sachverhalte anschaulich und verständlich „auf den ___ bringen“ kann.",
+    "options": [
+      "Punkt",
+      "Tisch",
+      "Boden",
+      "Schirm"
+    ],
+    "correct_answer": "Punkt"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Fachvokabular",
+    "context": "Fachtext",
+    "sentence": "Die These wurde durch mehrere Studien ___ und dadurch gestützt.",
+    "options": [
+      "widerlegt",
+      "verifiziert",
+      "verworfen",
+      "infragestellt"
+    ],
+    "correct_answer": "verifiziert"
+  },
+  {
+    "cefr_level": "C1",
+    "category": "Wortschatz",
+    "topic": "Register",
+    "context": "Qualitätsjournalismus",
+    "sentence": "Der Kolumnist verwendete in seinem Beitrag eine ___ Sprache, um die Leserschaft direkt anzusprechen.",
+    "options": [
+      "distanzierte",
+      "formelle",
+      "umgangssprachliche",
+      "technische"
+    ],
+    "correct_answer": "umgangssprachliche"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Konzessiver Konjunktiv",
+    "context": "Literatur",
+    "sentence": "___ er auch noch so sehr bat, sie blieb unerbittlich.",
+    "options": [
+      "Mochte",
+      "Obwohl",
+      "Wenn",
+      "Wenngleich"
+    ],
+    "correct_answer": "Mochte"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Nuancen zwischen bedeutungsähnlichen Präpositionen",
+    "context": "wissenschaftlicher Artikel",
+    "sentence": "Die Ergebnisse wurden ___ trotz der widrigen Umstände erzielt.",
+    "options": [
+      "aufgrund",
+      "wegen",
+      "trotz",
+      "infolge"
+    ],
+    "correct_answer": "trotz"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Stilistische Ellipsen/Inversionen",
+    "context": "Sachtext",
+    "sentence": "Nicht nur die Datenlage ist komplex, ___ auch die methodische Herangehensweise.",
+    "options": [
+      "sondern",
+      "sondern auch",
+      "sondern auch noch",
+      "aber auch"
+    ],
+    "correct_answer": "sondern auch"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Komplexe Nominalphrasen",
+    "context": "wissenschaftlicher Artikel",
+    "sentence": "Die Analyse ___ der jüngsten Studien zeigt deutliche Diskrepanzen auf.",
+    "options": [
+      "an Hand",
+      "anhand",
+      "gemäß",
+      "laut"
+    ],
+    "correct_answer": "anhand"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Feine semantische Unterschiede",
+    "context": "Literatur",
+    "sentence": "Er entschied sich für das Vorgehen, ___ mehr auf Intuition als auf Fakten basierte.",
+    "options": [
+      "das",
+      "welches",
+      "was",
+      "dessen"
+    ],
+    "correct_answer": "das"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Konzessiver Konjunktiv",
+    "context": "Sachtext",
+    "sentence": "Möge der Plan auch noch so durchdacht sein, er berücksichtigt nicht alle Variablen, ___.",
+    "options": [
+      "denn",
+      "doch",
+      "jedoch",
+      "sofern"
+    ],
+    "correct_answer": "doch"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Nuancen zwischen bedeutungsähnlichen Präpositionen",
+    "context": "wissenschaftlicher Artikel",
+    "sentence": "Die Studie wurde veröffentlicht ___ der Unterstützung mehrerer Förderinstitutionen.",
+    "options": [
+      "aufgrund",
+      "trotz",
+      "wegen",
+      "infolge"
+    ],
+    "correct_answer": "aufgrund"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Stilistische Ellipsen/Inversionen",
+    "context": "Literatur",
+    "sentence": "Kaum hatte er das Manuskript gelesen, ___ er seine Meinung geändert.",
+    "options": [
+      "hatte",
+      "änderte",
+      "änderte sich",
+      "veränderte"
+    ],
+    "correct_answer": "änderte"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Komplexe Nominalphrasen",
+    "context": "wissenschaftlicher Artikel",
+    "sentence": "Die Bedeutung ___ der vorliegenden Daten ist nicht zu unterschätzen.",
+    "options": [
+      "von",
+      "aus",
+      "über",
+      "für"
+    ],
+    "correct_answer": "von"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Grammatik",
+    "topic": "Feine semantische Unterschiede",
+    "context": "Sachtext",
+    "sentence": "Er bevorzugte eine Strategie, ___ langfristig nachhaltige Erfolge versprach.",
+    "options": [
+      "die",
+      "der",
+      "das",
+      "dessen"
+    ],
+    "correct_answer": "die"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Bedeutungsunterschiede",
+    "context": "Wissenschaft",
+    "sentence": "Die Ergebnisse ___ die ursprüngliche Hypothese vollständig.",
+    "options": [
+      "widerlegen",
+      "widersprechen",
+      "ablehnen",
+      "verneinen"
+    ],
+    "correct_answer": "widerlegen"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Stilistische Varianten",
+    "context": "Literatur",
+    "sentence": "Der Autor verwendet eine ___ Sprache, die sowohl archaische als auch moderne Elemente verbindet.",
+    "options": [
+      "blumige",
+      "schlichte",
+      "prägnante",
+      "poetische"
+    ],
+    "correct_answer": "blumige"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Nuancierter Wortschatz",
+    "context": "Wissenschaft",
+    "sentence": "Die Studie liefert eine ___ Analyse der komplexen Zusammenhänge zwischen den Variablen.",
+    "options": [
+      "oberflächliche",
+      "tiefgründige",
+      "flüchtige",
+      "einfache"
+    ],
+    "correct_answer": "tiefgründige"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Feine Bedeutungsunterschiede",
+    "context": "Literatur",
+    "sentence": "Die Protagonistin zeigt nicht nur Mut, sondern auch eine bemerkenswerte ___ in ihren Entscheidungen.",
+    "options": [
+      "Entschlossenheit",
+      "Zögerlichkeit",
+      "Unentschlossenheit",
+      "Nachgiebigkeit"
+    ],
+    "correct_answer": "Entschlossenheit"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Stilistische Varianten",
+    "context": "Wissenschaft",
+    "sentence": "Der Begriff ‚Paradigma‘ wird hier im Sinne eines ___ Modells verstanden, das Denkweisen prägt.",
+    "options": [
+      "herkömmlichen",
+      "vorläufigen",
+      "dominanten",
+      "veralteten"
+    ],
+    "correct_answer": "dominanten"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Nuancierter Wortschatz",
+    "context": "Literatur",
+    "sentence": "Das Werk zeichnet sich durch eine ___ Verwendung von Metaphern aus, die vielfältige Interpretationen zulässt.",
+    "options": [
+      "einfache",
+      "vieldeutige",
+      "klare",
+      "banale"
+    ],
+    "correct_answer": "vieldeutige"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Feine Bedeutungsunterschiede",
+    "context": "Wissenschaft",
+    "sentence": "Die Forscher mussten eine ___ Methode wählen, um die Variablen präzise zu messen.",
+    "options": [
+      "willkürliche",
+      "validierte",
+      "unzuverlässige",
+      "vage"
+    ],
+    "correct_answer": "validierte"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Stilistische Varianten",
+    "context": "Literatur",
+    "sentence": "Sein Stil ist geprägt von einer ___ Eleganz, die sowohl formell als auch zugänglich wirkt.",
+    "options": [
+      "schlichten",
+      "raffinierten",
+      "groben",
+      "nüchternen"
+    ],
+    "correct_answer": "raffinierten"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Nuancierter Wortschatz",
+    "context": "Wissenschaft",
+    "sentence": "Die Theorie wurde durch neuere Forschungen ___ und daher modifiziert.",
+    "options": [
+      "unterstützt",
+      "überholt",
+      "bestätigt",
+      "widerlegt"
+    ],
+    "correct_answer": "überholt"
+  },
+  {
+    "cefr_level": "C2",
+    "category": "Wortschatz",
+    "topic": "Feine Bedeutungsunterschiede",
+    "context": "Literatur",
+    "sentence": "Die Erzählung zeichnet sich durch eine ___ Perspektive aus, die sowohl subjektiv als auch objektiv wirkt.",
+    "options": [
+      "monotone",
+      "ambivalente",
+      "eindimensionale",
+      "eindeutige"
+    ],
+    "correct_answer": "ambivalente"
+  }
+]

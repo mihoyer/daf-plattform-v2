@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.config import settings
-from app.models.database import TestSession, ModulErgebnis, ModulStatus, SessionStatus, GutscheinCode, PaketTyp, get_db
+from app.models.database import TestSession, ModulErgebnis, ModulStatus, SessionStatus, GutscheinCode, PaketTyp, M1Item, get_db
 from app.services.session_service import lade_session
 
 router = APIRouter(prefix="/api/admin")
@@ -414,4 +414,183 @@ def _session_summary(sess: TestSession) -> dict:
         "abgeschlossen_am": sess.abgeschlossen_am.isoformat() if sess.abgeschlossen_am else None,
         "modul_count": len(sess.module),
         "abgeschlossene_module": sum(1 for m in sess.module if m.status == ModulStatus.abgeschlossen),
+    }
+
+
+# ── Item Bank (M1) ────────────────────────────────────────────────────────────
+
+@router.get("/item-bank")
+async def liste_items(
+    request: Request,
+    seite: int = 1,
+    limit: int = 50,
+    niveau: Optional[str] = None,
+    kategorie: Optional[str] = None,
+    nur_aktive: bool = False,
+    db: AsyncSession = Depends(get_db),
+):
+    """Listet alle Items der M1 Item Bank mit Filteroptionen."""
+    _prüfe_admin(request)
+    offset = (seite - 1) * limit
+
+    from sqlalchemy import and_
+    bedingungen = []
+    if niveau:
+        bedingungen.append(M1Item.cefr_level == niveau)
+    if kategorie:
+        bedingungen.append(M1Item.category == kategorie)
+    if nur_aktive:
+        bedingungen.append(M1Item.is_active == True)
+
+    query = select(M1Item).order_by(M1Item.cefr_level, M1Item.id)
+    if bedingungen:
+        query = query.where(and_(*bedingungen))
+
+    count_query = select(func.count(M1Item.id))
+    if bedingungen:
+        count_query = count_query.where(and_(*bedingungen))
+
+    result = await db.execute(query.offset(offset).limit(limit))
+    items = result.scalars().all()
+
+    count_result = await db.execute(count_query)
+    total = count_result.scalar()
+
+    # Statistik nach Niveau
+    stats_result = await db.execute(
+        select(M1Item.cefr_level, M1Item.category, func.count(M1Item.id))
+        .where(M1Item.is_active == True)
+        .group_by(M1Item.cefr_level, M1Item.category)
+    )
+    stats_rows = stats_result.all()
+    statistik = {}
+    for row in stats_rows:
+        niv, kat, count = row
+        if niv not in statistik:
+            statistik[niv] = {"Grammatik": 0, "Wortschatz": 0, "gesamt": 0}
+        statistik[niv][kat] = statistik[niv].get(kat, 0) + count
+        statistik[niv]["gesamt"] += count
+
+    return {
+        "items": [item.to_dict() for item in items],
+        "total": total,
+        "seite": seite,
+        "limit": limit,
+        "statistik": statistik,
+    }
+
+
+@router.patch("/item-bank/{item_id}/toggle")
+async def toggle_item(
+    item_id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Aktiviert oder deaktiviert ein einzelnes Item."""
+    _prüfe_admin(request)
+    result = await db.execute(select(M1Item).where(M1Item.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item nicht gefunden.")
+    item.is_active = not item.is_active
+    await db.commit()
+    return {"id": item.id, "is_active": item.is_active}
+
+
+@router.delete("/item-bank/{item_id}")
+async def loesche_item(
+    item_id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """Löscht ein Item dauerhaft aus der Item Bank."""
+    _prüfe_admin(request)
+    result = await db.execute(select(M1Item).where(M1Item.id == item_id))
+    item = result.scalar_one_or_none()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item nicht gefunden.")
+    await db.delete(item)
+    await db.commit()
+    return {"status": "geloescht", "id": item_id}
+
+
+@router.post("/item-bank/import")
+async def importiere_items(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Importiert Items aus einem JSON-Array im Request-Body.
+    Body: {"items": [...], "deactivate_existing": false}
+    """
+    _prüfe_admin(request)
+    body = await request.json()
+    items_data = body.get("items", [])
+    deactivate_existing = body.get("deactivate_existing", False)
+
+    if not isinstance(items_data, list):
+        raise HTTPException(status_code=400, detail="'items' muss ein Array sein.")
+
+    GUELTIGE_NIVEAUS = {"A1", "A2", "B1", "B2", "C1", "C2"}
+    GUELTIGE_KATEGORIEN = {"Grammatik", "Wortschatz"}
+
+    if deactivate_existing:
+        from sqlalchemy import update
+        await db.execute(update(M1Item).values(is_active=False))
+        await db.commit()
+
+    importiert = 0
+    fehler = []
+    duplikate = 0
+
+    for i, item in enumerate(items_data):
+        # Validierung
+        pflichtfelder = {"cefr_level", "category", "topic", "context", "sentence", "options", "correct_answer"}
+        fehlende = pflichtfelder - set(item.keys())
+        if fehlende:
+            fehler.append(f"Eintrag #{i+1}: Fehlende Felder: {fehlende}")
+            continue
+        if item["cefr_level"] not in GUELTIGE_NIVEAUS:
+            fehler.append(f"Eintrag #{i+1}: Ungültiges cefr_level '{item['cefr_level']}'")
+            continue
+        if item["category"] not in GUELTIGE_KATEGORIEN:
+            fehler.append(f"Eintrag #{i+1}: Ungültige category '{item['category']}'")
+            continue
+        if "___" not in item["sentence"]:
+            fehler.append(f"Eintrag #{i+1}: Kein '___' im sentence")
+            continue
+        if not isinstance(item["options"], list) or len(item["options"]) != 4:
+            fehler.append(f"Eintrag #{i+1}: 'options' muss genau 4 Einträge haben")
+            continue
+        if item["correct_answer"] not in item["options"]:
+            fehler.append(f"Eintrag #{i+1}: correct_answer nicht in options")
+            continue
+
+        # Duplikat-Check
+        from sqlalchemy import select as sa_select
+        dup_result = await db.execute(sa_select(M1Item).where(M1Item.sentence == item["sentence"]))
+        if dup_result.scalar_one_or_none():
+            duplikate += 1
+            continue
+
+        neues_item = M1Item(
+            cefr_level=item["cefr_level"],
+            category=item["category"],
+            topic=item["topic"],
+            context=item["context"],
+            sentence=item["sentence"],
+            options=item["options"],
+            correct_answer=item["correct_answer"],
+            is_active=True,
+        )
+        db.add(neues_item)
+        importiert += 1
+
+    await db.commit()
+
+    return {
+        "importiert": importiert,
+        "duplikate": duplikate,
+        "fehler_count": len(fehler),
+        "fehler": fehler[:20],  # Max 20 Fehlermeldungen zurückgeben
     }

@@ -47,6 +47,7 @@
   <div style="display:flex; border-bottom:2px solid var(--gray-200); margin-bottom:2rem;">
     <button class="tab-btn active" id="tab-sessions" onclick="zeigTab('sessions')">Sessions</button>
     <button class="tab-btn" id="tab-codes" onclick="zeigTab('codes')">Testgruppen-Codes</button>
+    <button class="tab-btn" id="tab-itembank" onclick="zeigTab('itembank')">Item Bank (M1)</button>
   </div>
 
   <!-- ===== SESSIONS ===== -->
@@ -99,6 +100,96 @@
       </div>
     </div>
     <div id="pagination" style="display:flex; gap:.5rem; justify-content:center; margin-top:1rem;"></div>
+  </div>
+
+  <!-- ===== ITEM BANK ===== -->
+  <div id="panel-itembank" style="display:none;">
+
+    <!-- Statistik-Karten -->
+    <div id="ib-stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px,1fr)); gap:.75rem; margin-bottom:1.5rem;">
+      <div class="stat-card"><div class="stat-val" id="ib-total" style="color:var(--primary);">–</div><div class="text-sm text-muted">Items gesamt</div></div>
+      <div class="stat-card"><div class="stat-val" id="ib-a1" style="color:var(--gray-600);">–</div><div class="text-sm text-muted">A1</div></div>
+      <div class="stat-card"><div class="stat-val" id="ib-a2" style="color:var(--gray-600);">–</div><div class="text-sm text-muted">A2</div></div>
+      <div class="stat-card"><div class="stat-val" id="ib-b1" style="color:var(--primary);">–</div><div class="text-sm text-muted">B1</div></div>
+      <div class="stat-card"><div class="stat-val" id="ib-b2" style="color:var(--primary);">–</div><div class="text-sm text-muted">B2</div></div>
+      <div class="stat-card"><div class="stat-val" id="ib-c1" style="color:var(--gray-600);">–</div><div class="text-sm text-muted">C1</div></div>
+      <div class="stat-card"><div class="stat-val" id="ib-c2" style="color:var(--gray-600);">–</div><div class="text-sm text-muted">C2</div></div>
+    </div>
+
+    <!-- Import-Bereich -->
+    <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+      <h3 style="margin-bottom:.75rem;">Items importieren (JSON)</h3>
+      <p style="font-size:.875rem; color:var(--gray-500); margin-bottom:.75rem;">JSON-Array mit Aufgaben einfügen. Format: <code>[{"cefr_level":"A2", "category":"Grammatik", "topic":"...", "context":"...", "sentence":"Satz mit ___ Lücke", "options":["a","b","c","d"], "correct_answer":"a"}, ...]</code></p>
+      <textarea id="ib-json-input" rows="6" style="width:100%; padding:.5rem; border:1px solid var(--gray-300); border-radius:8px; font-family:monospace; font-size:.8rem; resize:vertical;" placeholder='[{"cefr_level": "A2", "category": "Grammatik", ...}]'></textarea>
+      <div style="display:flex; gap:.5rem; margin-top:.75rem; align-items:center; flex-wrap:wrap;">
+        <button onclick="importiereItems()" class="btn btn-primary btn-sm">Importieren</button>
+        <label style="display:flex; align-items:center; gap:.4rem; font-size:.875rem; cursor:pointer;">
+          <input type="checkbox" id="ib-deactivate" style="width:auto;"> Bestehende Items vorher deaktivieren
+        </label>
+      </div>
+      <div id="ib-import-status" style="margin-top:.75rem; font-size:.875rem;"></div>
+    </div>
+
+    <!-- Filter -->
+    <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; padding:1rem; margin-bottom:1rem;">
+      <div class="form-row">
+        <div class="fg">
+          <label>Niveau</label>
+          <select id="ib-f-niveau" onchange="ladeItems()">
+            <option value="">Alle</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="C1">C1</option>
+            <option value="C2">C2</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Kategorie</label>
+          <select id="ib-f-kat" onchange="ladeItems()">
+            <option value="">Alle</option>
+            <option value="Grammatik">Grammatik</option>
+            <option value="Wortschatz">Wortschatz</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Nur aktive</label>
+          <select id="ib-f-aktiv" onchange="ladeItems()">
+            <option value="">Alle</option>
+            <option value="1">Nur aktive</option>
+          </select>
+        </div>
+        <div class="fg" style="max-width:120px;">
+          <label>&nbsp;</label>
+          <button onclick="ladeItems()" class="btn btn-primary btn-sm" style="width:100%;">Aktualisieren</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items-Tabelle -->
+    <div style="background:#fff; border:1px solid var(--gray-200); border-radius:12px; overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Niveau</th>
+              <th>Kategorie</th>
+              <th>Thema</th>
+              <th>Satz</th>
+              <th>Optionen</th>
+              <th>Status</th>
+              <th>Aktionen</th>
+            </tr>
+          </thead>
+          <tbody id="items-tbody">
+            <tr><td colspan="8" style="padding:2rem; text-align:center; color:var(--gray-400);">Wird geladen…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div id="ib-pagination" style="display:flex; gap:.5rem; justify-content:center; margin-top:1rem;"></div>
   </div>
 
   <!-- ===== CODES ===== -->
@@ -176,11 +267,12 @@ async function logout() {
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function zeigTab(name) {
-  ['sessions','codes'].forEach(t => {
+  ['sessions','codes','itembank'].forEach(t => {
     document.getElementById('panel-' + t).style.display = t === name ? '' : 'none';
     document.getElementById('tab-' + t).classList.toggle('active', t === name);
   });
   if (name === 'codes') ladeCodes();
+  if (name === 'itembank') ladeItems();
 }
 
 // ── Statistiken ───────────────────────────────────────────────────────────────
@@ -358,12 +450,130 @@ async function loescheInaktiveCodes() {
   ladeCodes();
 }
 
+// ── Item Bank ─────────────────────────────────────────────────────────────────
+let ibAktuelleSeite = 1;
+
+async function ladeItems(seite = 1) {
+  ibAktuelleSeite = seite;
+  const tbody = document.getElementById('items-tbody');
+  tbody.innerHTML = '<tr><td colspan="8" style="padding:2rem;text-align:center;color:var(--gray-400);">Wird geladen…</td></tr>';
+  const niveau = document.getElementById('ib-f-niveau').value;
+  const kat = document.getElementById('ib-f-kat').value;
+  const nurAktiv = document.getElementById('ib-f-aktiv').value;
+  const params = new URLSearchParams({ seite, limit: 50 });
+  if (niveau) params.set('niveau', niveau);
+  if (kat) params.set('kategorie', kat);
+  if (nurAktiv) params.set('nur_aktive', 'true');
+  try {
+    const r = await fetch('/api/admin/item-bank?' + params, { credentials: 'include' });
+    if (r.status === 401) { window.location.href = '/admin/login'; return; }
+    const d = await r.json();
+
+    // Statistik aktualisieren
+    const niveaus = ['A1','A2','B1','B2','C1','C2'];
+    let total = 0;
+    niveaus.forEach(n => {
+      const cnt = d.statistik[n] ? d.statistik[n].gesamt : 0;
+      total += cnt;
+      const el = document.getElementById('ib-' + n.toLowerCase());
+      if (el) el.textContent = cnt || '0';
+    });
+    document.getElementById('ib-total').textContent = total || '0';
+
+    if (!d.items || d.items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="padding:2rem;text-align:center;color:var(--gray-400);">Keine Items gefunden. Bitte zuerst Aufgaben importieren.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = d.items.map(item => `
+      <tr>
+        <td style="font-size:.8rem;color:var(--gray-400);">${item.id}</td>
+        <td><span class="badge badge-gray">${item.cefr_level}</span></td>
+        <td><span class="badge ${item.category === 'Grammatik' ? 'badge-success' : 'badge-warning'}">${item.category}</span></td>
+        <td style="font-size:.8rem;color:var(--gray-600);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.topic}">${item.topic}</td>
+        <td style="font-size:.8rem;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.sentence}">${item.sentence.replace('___', '<strong style=color:var(--primary)>___</strong>')}</td>
+        <td style="font-size:.75rem;color:var(--gray-500);">${item.options.map((o,i) => o === item.correct_answer ? '<strong style=color:var(--success)>' + o + '</strong>' : o).join(' / ')}</td>
+        <td>${item.is_active
+          ? '<span class="badge badge-success">Aktiv</span>'
+          : '<span class="badge badge-danger">Inaktiv</span>'}</td>
+        <td>
+          <div style="display:flex;gap:.3rem;">
+            <button onclick="toggleItem(${item.id})" class="btn-xs" title="${item.is_active ? 'Deaktivieren' : 'Aktivieren'}">${item.is_active ? '⏸' : '▶'}</button>
+            <button onclick="loescheItem(${item.id})" class="btn-xs danger" title="Löschen">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    // Pagination
+    const pg = document.getElementById('ib-pagination');
+    pg.innerHTML = '';
+    const seiten = Math.ceil(d.total / 50);
+    for (let i = 1; i <= seiten; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = 'btn btn-sm ' + (i === seite ? 'btn-primary' : 'btn-outline');
+      btn.style.padding = '.3rem .7rem';
+      btn.onclick = () => ladeItems(i);
+      pg.appendChild(btn);
+    }
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="8" style="padding:2rem;text-align:center;color:var(--danger);">Fehler beim Laden.</td></tr>';
+  }
+}
+
+async function toggleItem(id) {
+  const r = await fetch('/api/admin/item-bank/' + id + '/toggle', { method: 'PATCH', credentials: 'include' });
+  if (r.ok) ladeItems(ibAktuelleSeite);
+  else alert('Fehler beim Umschalten.');
+}
+
+async function loescheItem(id) {
+  if (!confirm('Item #' + id + ' wirklich dauerhaft löschen?')) return;
+  const r = await fetch('/api/admin/item-bank/' + id, { method: 'DELETE', credentials: 'include' });
+  if (r.ok) ladeItems(ibAktuelleSeite);
+  else alert('Fehler beim Löschen.');
+}
+
+async function importiereItems() {
+  const status = document.getElementById('ib-import-status');
+  const jsonText = document.getElementById('ib-json-input').value.trim();
+  const deactivate = document.getElementById('ib-deactivate').checked;
+  if (!jsonText) { status.textContent = 'Bitte JSON einfügen.'; status.style.color = 'var(--danger)'; return; }
+  let items;
+  try { items = JSON.parse(jsonText); } catch(e) { status.textContent = 'Ungültiges JSON: ' + e.message; status.style.color = 'var(--danger)'; return; }
+  if (!Array.isArray(items)) { status.textContent = 'JSON muss ein Array sein.'; status.style.color = 'var(--danger)'; return; }
+  status.textContent = 'Importiere ' + items.length + ' Items…'; status.style.color = 'var(--gray-500)';
+  try {
+    const r = await fetch('/api/admin/item-bank/import', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items, deactivate_existing: deactivate })
+    });
+    const d = await r.json();
+    if (r.ok) {
+      status.innerHTML = `✓ <strong>${d.importiert}</strong> importiert, <strong>${d.duplikate}</strong> Duplikate übersprungen${d.fehler_count ? ', <strong style=color:var(--danger)>' + d.fehler_count + ' Fehler</strong>' : ''}.`;
+      status.style.color = 'var(--success)';
+      if (d.fehler && d.fehler.length > 0) {
+        status.innerHTML += '<br><small style=color:var(--danger)>' + d.fehler.join('<br>') + '</small>';
+      }
+      document.getElementById('ib-json-input').value = '';
+      ladeItems();
+    } else {
+      status.textContent = 'Fehler: ' + (d.detail || 'Unbekannt');
+      status.style.color = 'var(--danger)';
+    }
+  } catch(e) {
+    status.textContent = 'Netzwerkfehler.'; status.style.color = 'var(--danger)';
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async () => {
   await pruefeAuth();
   ladeStats();
   ladeSessions();
   if (window.location.hash === '#codes') zeigTab('codes');
+  if (window.location.hash === '#itembank') zeigTab('itembank');
 })();
 </script>
 </body>
