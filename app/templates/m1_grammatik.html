@@ -218,7 +218,7 @@ function onEingabe(inputEl) {
   const val = inputEl.value.trim();
   const btn = document.getElementById('btn-weiter');
   btn.disabled = val.length === 0;
-  btn.textContent = val.length > 0 ? 'Antwort bestätigen →' : 'Antwort eingeben →';
+  btn.textContent = val.length > 0 ? 'Weiter →' : 'Antwort eingeben →';
 }
 
 function onKeyDown(event) {
@@ -233,96 +233,64 @@ function onKeyDown(event) {
 // ── Weiter-Button ──────────────────────────────────────────────────────────
 
 async function weiter() {
-  // Erste Aktion: Antwort noch nicht gespeichert → speichern, ausgrauen, Button umschalten
-  if (eingabeAktiv) {
-    const inputEl = document.getElementById('luecken-input');
-    if (!inputEl) return;
-    const eingabe = inputEl.value.trim();
-    if (!eingabe) return;
+  const inputEl = document.getElementById('luecken-input');
+  if (!inputEl) return;
+  const eingabe = inputEl.value.trim();
+  if (!eingabe) return;
 
-    eingabeAktiv = false;
-    inputEl.disabled = true;
+  // Eingabe sperren und Button deaktivieren (Doppelklick verhindern)
+  eingabeAktiv = false;
+  inputEl.disabled = true;
+  const btn = document.getElementById('btn-weiter');
+  btn.disabled = true;
 
-    const frage = alleFragen[aktuelleFrageIdx];
-    antworten[frage.id] = eingabe;
+  const frage = alleFragen[aktuelleFrageIdx];
+  antworten[frage.id] = eingabe;
 
-    // Aufgabenkarte ausgrauen
-    const karte = document.getElementById('frage-karte');
-    if (karte) karte.classList.add('frage-ausgegraut');
+  const istLetzte = aktuelleFrageIdx >= GESAMT_FRAGEN - 1;
 
-    const istLetzte = aktuelleFrageIdx >= GESAMT_FRAGEN - 1;
-    const naechsterIdx = aktuelleFrageIdx + 1;
-    const naechsteFehlt = naechsterIdx >= alleFragen.length;
-
-    // Button auf "Nächste Aufgabe" umschalten
-    const btn = document.getElementById('btn-weiter');
-    btn.disabled = false;
-    btn.textContent = istLetzte ? 'Auswertung starten →' : 'Nächste Aufgabe →';
-
-    // Nächste Frage parallel im Hintergrund laden
-    if (!istLetzte && naechsteFehlt) {
-      wartendAufNaechste = true;
-
-      fetch(`/api/m1/${token}/naechste`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item_id: frage.id, eingabe: eingabe }),
-      })
-      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-      .then(data => {
-        if (data.frage) {
-          alleFragen.push(data.frage);
-          geschaetztesNiveau = data.geschaetztes_niveau || geschaetztesNiveau;
-        }
-        wartendAufNaechste = false;
-        // Falls Nutzer schon auf "Nächste Aufgabe" gewartet hat
-        if (btn.dataset.wartet === '1') {
-          btn.dataset.wartet = '0';
-          btn.disabled = false;
-          btn.textContent = 'Nächste Aufgabe →';
-          aktuelleFrageIdx++;
-          zeigeAktuelleFrage();
-        }
-      })
-      .catch(e => {
-        console.error('Fehler beim Laden der nächsten Frage:', e);
-        wartendAufNaechste = false;
-        if (btn.dataset.wartet === '1') {
-          btn.dataset.wartet = '0';
-          btn.disabled = false;
-          btn.textContent = 'Nächste Aufgabe →';
-        }
-      });
-    }
-
-    return; // Warten auf zweiten Klick
-  }
-
-  // Zweite Aktion: Weiterblättern oder Endauswertung
-  if (aktuelleFrageIdx >= GESAMT_FRAGEN - 1) {
+  if (istLetzte) {
+    // Letzte Frage: direkt zur Endauswertung
     await sendeEndauswertung();
     return;
   }
 
+  // Nächste Frage laden (aus Cache oder per API)
   const naechsterIdx = aktuelleFrageIdx + 1;
 
   if (naechsterIdx < alleFragen.length) {
+    // Bereits gecacht: sofort anzeigen
     aktuelleFrageIdx = naechsterIdx;
     zeigeAktuelleFrage();
-    return;
-  }
+  } else {
+    // Noch nicht geladen: Spinner anzeigen und API aufrufen
+    btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:.5rem;"></span>Wird geladen…';
+    document.getElementById('frage-container').innerHTML = `
+      <div class="card" style="text-align:center; padding:2rem;">
+        <div class="spinner" style="margin:0 auto 1rem;"></div>
+        <p class="text-muted">Nächste Aufgabe wird geladen…</p>
+      </div>
+    `;
 
-  // Nächste Frage wird noch geladen – Spinner anzeigen
-  const btn = document.getElementById('btn-weiter');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:.5rem;"></span>Wird geladen…';
-  btn.dataset.wartet = '1';
-  document.getElementById('frage-container').innerHTML = `
-    <div class="card" style="text-align:center; padding:2rem;">
-      <div class="spinner" style="margin:0 auto 1rem;"></div>
-      <p class="text-muted">Nächste Aufgabe wird geladen…</p>
-    </div>
-  `;
+    try {
+      const res = await fetch(`/api/m1/${token}/naechste`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item_id: frage.id, eingabe: eingabe }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data.frage) {
+        alleFragen.push(data.frage);
+        geschaetztesNiveau = data.geschaetztes_niveau || geschaetztesNiveau;
+      }
+    } catch (e) {
+      console.error('Fehler beim Laden der nächsten Frage:', e);
+    }
+
+    aktuelleFrageIdx = naechsterIdx;
+    zeigeAktuelleFrage();
+  }
 }
 
 // ── Endauswertung ──────────────────────────────────────────────────────────
