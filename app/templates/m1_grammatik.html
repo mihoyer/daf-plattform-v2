@@ -191,16 +191,15 @@ function zeigeAktuelleFrage() {
   const container = document.getElementById('frage-container');
   container.innerHTML = `
     <div class="card${bereitsBeantwortet ? ' frage-ausgegraut' : ''}" id="frage-karte">
-      <div class="text-xs text-muted mb-3" style="display:flex; gap:.5rem; align-items:center;">
+      <div class="text-xs text-muted mb-3">
         <span>Frage ${frageNr}</span>
-        ${frage.thema ? `<span style="background:var(--primary-lighter); padding:2px 8px; border-radius:12px;">${frage.thema}</span>` : ''}
       </div>
       <p class="text-sm text-muted mb-3">Ergänze die fehlende Wortform im Lückentext:</p>
       <h3 class="mb-5" style="font-size:1.15rem; line-height:2;">${satzHtml}</h3>
     </div>
   `;
 
-  // Wenn bereits beantwortet: Weiter-Button aktivieren (kein Feedback)
+  // Wenn bereits beantwortet: Weiter-Button aktivieren
   if (bereitsBeantwortet) {
     btn.disabled = false;
     btn.textContent = aktuelleFrageIdx < GESAMT_FRAGEN - 1 ? 'Nächste Aufgabe →' : 'Auswertung starten →';
@@ -229,14 +228,6 @@ function onKeyDown(event) {
       weiter();
     }
   }
-}
-
-// ── Antwort prüfen (intern, kein UI-Feedback) ──────────────────────────────
-
-function pruefeAntwort(eingabe, frage) {
-  const korrektText = (frage.korrekte_antwort_text || frage.optionen?.[frage.korrekt] || '').trim().toLowerCase();
-  const eingabeNorm = eingabe.trim().toLowerCase();
-  return eingabeNorm === korrektText;
 }
 
 // ── Weiter-Button ──────────────────────────────────────────────────────────
@@ -271,13 +262,11 @@ async function weiter() {
     // Nächste Frage parallel im Hintergrund laden
     if (!istLetzte && naechsteFehlt) {
       wartendAufNaechste = true;
-      const istKorrekt = pruefeAntwort(eingabe, frage);
-      const gewaehltIdx = istKorrekt ? frage.korrekt : (frage.korrekt === 0 ? 1 : 0);
 
       fetch(`/api/m1/${token}/naechste`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item_id: frage.id, gewaehlt: gewaehltIdx }),
+        body: JSON.stringify({ item_id: frage.id, eingabe: eingabe }),
       })
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
@@ -309,7 +298,7 @@ async function weiter() {
     return; // Warten auf zweiten Klick
   }
 
-  // Zweite Aktion: Weiter zur nächsten Frage oder Endauswertung
+  // Zweite Aktion: Weiterblättern oder Endauswertung
   if (aktuelleFrageIdx >= GESAMT_FRAGEN - 1) {
     await sendeEndauswertung();
     return;
@@ -341,12 +330,11 @@ async function weiter() {
 async function sendeEndauswertung() {
   document.getElementById('analyse-overlay').classList.remove('hidden');
 
+  // Antworten als Text-Map senden: {"item_id": "eingegebener_text"}
   const antwortenPayload = {};
   alleFragen.forEach(f => {
     if (antworten[f.id] !== undefined) {
-      const eingabe = antworten[f.id];
-      const istKorrekt = pruefeAntwort(eingabe, f);
-      antwortenPayload[String(f.id)] = istKorrekt ? f.korrekt : (f.korrekt === 0 ? 1 : 0);
+      antwortenPayload[String(f.id)] = antworten[f.id];
     }
   });
 
