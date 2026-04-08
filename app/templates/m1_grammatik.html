@@ -172,7 +172,7 @@ function zeigeAktuelleFrage() {
   const bereitsBeantwortet = antworten[frage.id] !== undefined;
   const gespeicherteAntwort = antworten[frage.id] ?? '';
 
-  const satzHtml = satz.replace('_____', `<input
+  const satzHtml = satz.replace(/_+/, `<input
     type="text"
     id="luecken-input"
     class="lueckentext-input"
