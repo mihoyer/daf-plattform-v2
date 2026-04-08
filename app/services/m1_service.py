@@ -1,5 +1,5 @@
 """
-M1-Service: Grammatik & Wortschatz – Statische Item Bank.
+M1-Service: Grammatik & Wortschatz – Statische Item Bank (Lückentext-Modus).
 
 Ablauf:
 1. starte_adaptiven_test()  → 3 Einstiegsfragen aus DB (A2 / B1 / B2 gemischt)
@@ -8,10 +8,12 @@ Ablauf:
 
 Keine KI-Aufrufe mehr für Fragen-Generierung.
 Adaptivität läuft vollständig im Python-Algorithmus.
-Fallback auf GPT nur wenn Item Bank leer oder zu wenig Aufgaben.
+Auswertung: Texteingabe des Lernenden wird direkt mit correct_answer verglichen
+(case-insensitive, Umlaute normalisiert).
 """
 import json
 import random
+import unicodedata
 from typing import Optional
 
 from sqlalchemy import select, and_
@@ -28,6 +30,24 @@ EINSTIEGS_NIVEAUS = ["A2", "B1", "B2"]
 
 # Grammatik/Wortschatz-Verhältnis: 70% / 30%
 KATEGORIE_GEWICHTE = {"Grammatik": 0.70, "Wortschatz": 0.30}
+
+
+# ── Textvergleich ─────────────────────────────────────────────────────────────
+
+def normalisiere(text: str) -> str:
+    """
+    Normalisiert eine Texteingabe für den Vergleich:
+    - Kleinbuchstaben
+    - Führende/nachfolgende Leerzeichen entfernen
+    - Umlaute beibehalten (ä, ö, ü, ß sind korrekt)
+    - Mehrfache Leerzeichen auf eines reduzieren
+    """
+    return " ".join(text.strip().lower().split())
+
+
+def ist_korrekt(eingabe: str, korrekte_antwort: str) -> bool:
+    """Vergleicht die Eingabe des Lernenden mit der korrekten Antwort."""
+    return normalisiere(eingabe) == normalisiere(korrekte_antwort)
 
 
 # ── Niveau-Schätzung (IRT-vereinfacht) ───────────────────────────────────────
@@ -77,7 +97,6 @@ async def hole_item_aus_db(
     3. Benachbartes Niveau (±1)
     4. Beliebiges aktives Item (Notfall)
     """
-    # Basis-Filter: aktiv, noch nicht verwendet
     def basis_query(niv: str, kat: Optional[str] = None):
         bedingungen = [
             M1Item.is_active == True,
@@ -131,22 +150,13 @@ async def hole_item_aus_db(
 def item_zu_frage(item: dict, item_id: int) -> dict:
     """
     Konvertiert ein Item-Bank-Dict in das Frontend-kompatible Fragen-Format.
-    Mischt die Optionen und merkt sich den korrekten Index.
+    Kein options-Mischen mehr – reiner Lückentext-Modus.
     """
-    optionen = list(item["options"])
-    korrekte_antwort = item["correct_answer"]
-
-    # Optionen mischen
-    random.shuffle(optionen)
-    korrekt_idx = optionen.index(korrekte_antwort)
-
     return {
         "id": item_id,
         "frage": item["sentence"].replace("___", "_____"),  # Frontend erwartet 5 Unterstriche
-        "optionen": optionen,
-        "korrekt": korrekt_idx,
-        "korrekte_antwort_text": korrekte_antwort,
-        "erklaerung": f"{item['category']}: {item['topic']} ({item['context']})",
+        "korrekte_antwort_text": item["correct_answer"],
+        "feedback_text": item.get("feedback_text", ""),
         "niveau": item["cefr_level"],
         "thema": item["topic"],
         # Metadaten für Auswertung
@@ -161,7 +171,7 @@ def bestimme_kategorie(fragen_bisher: list[dict]) -> Optional[str]:
     um das 70/30-Verhältnis (Grammatik/Wortschatz) einzuhalten.
     """
     if not fragen_bisher:
-        return "Grammatik"  # Start mit Grammatik
+        return "Grammatik"
 
     grammatik_count = sum(1 for f in fragen_bisher if f.get("category") == "Grammatik")
     wortschatz_count = sum(1 for f in fragen_bisher if f.get("category") == "Wortschatz")
@@ -196,7 +206,6 @@ async def starte_adaptiven_test(db: AsyncSession, hilfssprache: str = "de") -> d
         item = await hole_item_aus_db(db, niveau, verwendet_ids, bevorzugte_kat)
 
         if item is None:
-            # Fallback: Notfall-Frage
             frage = _fallback_frage(niveau, i + 1)
         else:
             frage = item_zu_frage(item, i + 1)
@@ -221,7 +230,7 @@ async def naechste_frage(
     db: AsyncSession,
     zustand: dict,
     item_id: int,
-    gewaehlt: int,
+    eingabe: str,          # Texteingabe des Lernenden (statt gewaehlt-Index)
     hilfssprache: str = "de",
 ) -> dict:
     """Verarbeitet eine Antwort und gibt die nächste adaptive Frage aus der Item Bank zurück."""
@@ -238,14 +247,14 @@ async def naechste_frage(
     korrekt = False
     fragen_niveau = "B1"
     if aktuelle_frage:
-        korrekt = gewaehlt == aktuelle_frage.get("korrekt", -1)
+        korrekt = ist_korrekt(eingabe, aktuelle_frage.get("korrekte_antwort_text", ""))
         fragen_niveau = aktuelle_frage.get("niveau", "B1")
 
     antworten_verlauf.append({
         "item_id": item_id,
         "niveau": fragen_niveau,
         "korrekt": korrekt,
-        "gewaehlt": gewaehlt,
+        "eingabe": eingabe,
     })
 
     neues_niveau = schaetze_niveau(antworten_verlauf)
@@ -271,8 +280,11 @@ async def naechste_frage(
     }
 
 
-async def werte_aus(alle_fragen: list[dict], antworten: dict[str, int]) -> dict:
-    """Endauswertung: berechnet Score, CEFR und detaillierte Analyse."""
+async def werte_aus(alle_fragen: list[dict], antworten: dict[str, str]) -> dict:
+    """
+    Endauswertung: berechnet Score, CEFR und detaillierte Analyse.
+    antworten: {str(item_id): eingegebener_text}
+    """
     korrekt_count = 0
     total = len(alle_fragen)
     details = []
@@ -280,39 +292,30 @@ async def werte_aus(alle_fragen: list[dict], antworten: dict[str, int]) -> dict:
 
     for frage in alle_fragen:
         item_id = str(frage["id"])
-        gewaehlt = antworten.get(item_id, -1)
-        ist_korrekt = gewaehlt == frage.get("korrekt", -99)
-        if ist_korrekt:
+        eingabe = antworten.get(item_id, "")
+        korrekte_antwort = frage.get("korrekte_antwort_text", "")
+        ist_richtig = ist_korrekt(eingabe, korrekte_antwort)
+
+        if ist_richtig:
             korrekt_count += 1
 
         antworten_verlauf.append({
             "niveau": frage.get("niveau", "B1"),
-            "korrekt": ist_korrekt,
+            "korrekt": ist_richtig,
         })
 
-        korrekt_text = frage.get("korrekte_antwort_text") or (
-            frage.get("optionen", [])[frage.get("korrekt", 0)]
-            if frage.get("optionen") else "–"
-        )
         details.append({
             "id": frage["id"],
             "frage": frage["frage"],
-            "optionen": frage.get("optionen", []),
-            "gewaehlt": gewaehlt,
-            "gewaehlt_text": (frage.get("optionen", [])[gewaehlt]
-                               if 0 <= gewaehlt < len(frage.get("optionen", []))
-                               else "–"),
-            "korrekt": frage.get("korrekt"),
-            "korrekt_text": korrekt_text,
-            "korrekte_antwort_text": korrekt_text,
-            "ist_korrekt": ist_korrekt,
-            "erklaerung": frage.get("erklaerung", ""),
+            "eingabe": eingabe,
+            "korrekte_antwort": korrekte_antwort,
+            "ist_korrekt": ist_richtig,
+            "feedback_text": frage.get("feedback_text", ""),
             "niveau": frage.get("niveau", "B1"),
             "thema": frage.get("thema", ""),
         })
 
     prozent = (korrekt_count / total * 100) if total > 0 else 0
-
     adaptives_niveau = schaetze_niveau(antworten_verlauf)
 
     if prozent >= 90:
@@ -359,29 +362,29 @@ def _analysiere_schwaechen(details: list[dict]) -> list[str]:
 
 
 def _fallback_frage(niveau: str, item_id: int) -> dict:
-    """Notfall-Fallback – handverlesene, geprüfte Fragen pro Niveau."""
+    """Notfall-Fallback – handverlesene, geprüfte Lückentextfragen pro Niveau."""
     fallbacks = {
         "A1": [
-            {"frage": "Ich _____ aus Deutschland.", "optionen": ["komme", "kommst", "kommt", "kommen"], "korrekt": 0, "erklaerung": "1. Person Singular Präsens: ich komme.", "thema": "Personalpronomen"},
-            {"frage": "Das _____ mein Bruder.", "optionen": ["ist", "bin", "bist", "sind"], "korrekt": 0, "erklaerung": "3. Person Singular von 'sein': ist.", "thema": "sein/haben"},
+            {"frage": "Ich _____ aus Deutschland.", "korrekte_antwort_text": "komme", "feedback_text": "1. Person Singular Präsens von 'kommen': ich komme.", "thema": "Konjugation Präsens"},
+            {"frage": "Das _____ mein Bruder.", "korrekte_antwort_text": "ist", "feedback_text": "3. Person Singular von 'sein': ist.", "thema": "sein/haben"},
         ],
         "A2": [
-            {"frage": "Gestern _____ ich ins Kino gegangen.", "optionen": ["bin", "habe", "war", "wurde"], "korrekt": 0, "erklaerung": "Perfekt mit 'sein' bei Bewegungsverben (gehen).", "thema": "Perfekt"},
-            {"frage": "Kannst du _____ helfen?", "optionen": ["mir", "mich", "mein", "ich"], "korrekt": 0, "erklaerung": "Nach 'helfen' steht der Dativ: mir.", "thema": "Dativ"},
+            {"frage": "Gestern _____ ich ins Kino gegangen.", "korrekte_antwort_text": "bin", "feedback_text": "Perfekt mit 'sein' bei Bewegungsverben (gehen): ich bin gegangen.", "thema": "Perfekt"},
+            {"frage": "Kannst du _____ helfen?", "korrekte_antwort_text": "mir", "feedback_text": "Nach 'helfen' steht der Dativ: mir (nicht mich).", "thema": "Dativ"},
         ],
         "B1": [
-            {"frage": "Er kommt nicht zur Party, _____ er krank ist.", "optionen": ["weil", "dass", "ob", "wenn"], "korrekt": 0, "erklaerung": "'weil' leitet einen Kausalsatz ein (Verb am Ende).", "thema": "Kausalsätze"},
-            {"frage": "Sie fragt, _____ er morgen Zeit hat.", "optionen": ["ob", "dass", "weil", "wenn"], "korrekt": 0, "erklaerung": "'ob' leitet indirekte Ja/Nein-Fragen ein.", "thema": "Indirekte Rede"},
+            {"frage": "Er kommt nicht zur Party, _____ er krank ist.", "korrekte_antwort_text": "weil", "feedback_text": "'weil' leitet einen Kausalsatz ein, das Verb steht am Ende.", "thema": "Kausalsätze"},
+            {"frage": "Sie fragt, _____ er morgen Zeit hat.", "korrekte_antwort_text": "ob", "feedback_text": "'ob' leitet indirekte Ja/Nein-Fragen ein.", "thema": "Indirekte Rede"},
         ],
         "B2": [
-            {"frage": "Wenn ich mehr Zeit _____, würde ich öfter reisen.", "optionen": ["hätte", "habe", "hatte", "haben"], "korrekt": 0, "erklaerung": "Konjunktiv II von 'haben': hätte.", "thema": "Konjunktiv II"},
-            {"frage": "Das Projekt _____ gestern abgeschlossen.", "optionen": ["wurde", "wird", "war", "ist"], "korrekt": 0, "erklaerung": "Passiv Präteritum: wurde + Partizip II.", "thema": "Passiv"},
+            {"frage": "Wenn ich mehr Zeit _____, würde ich öfter reisen.", "korrekte_antwort_text": "hätte", "feedback_text": "Konjunktiv II von 'haben': hätte.", "thema": "Konjunktiv II"},
+            {"frage": "Das Projekt _____ gestern abgeschlossen.", "korrekte_antwort_text": "wurde", "feedback_text": "Passiv Präteritum: wurde + Partizip II.", "thema": "Passiv"},
         ],
         "C1": [
-            {"frage": "_____ seiner Erfahrung konnte er das Problem schnell lösen.", "optionen": ["Aufgrund", "Wegen", "Durch", "Mit"], "korrekt": 0, "erklaerung": "'Aufgrund' ist eine Präposition mit Genitiv.", "thema": "Genitiv-Präpositionen"},
+            {"frage": "_____ seiner Erfahrung konnte er das Problem schnell lösen.", "korrekte_antwort_text": "Aufgrund", "feedback_text": "'Aufgrund' ist eine Präposition mit Genitiv und gibt einen Grund an.", "thema": "Genitiv-Präpositionen"},
         ],
         "C2": [
-            {"frage": "Die Entscheidung, _____ er so lange gezögert hatte, fiel ihm schwer.", "optionen": ["über die", "die", "für die", "mit der"], "korrekt": 0, "erklaerung": "Relativsatz mit Präposition: 'zögern über' → über die.", "thema": "Relativsätze"},
+            {"frage": "Die Entscheidung, _____ er so lange gezögert hatte, fiel ihm schwer.", "korrekte_antwort_text": "über die", "feedback_text": "Relativsatz mit Präposition: 'zögern über' → über die.", "thema": "Relativsätze"},
         ],
     }
 
@@ -389,6 +392,6 @@ def _fallback_frage(niveau: str, item_id: int) -> dict:
     fb = random.choice(niveau_fallbacks).copy()
     fb["id"] = item_id
     fb["niveau"] = niveau
-    fb["korrekte_antwort_text"] = fb["optionen"][fb["korrekt"]]
     fb["category"] = "Grammatik"
+    fb["item_bank_id"] = None
     return fb
