@@ -33,7 +33,6 @@
         </div>
         <div class="flex gap-2 items-center">
           <span class="badge badge-gray" id="fortschritt-badge">1 / 10</span>
-          <span class="badge badge-primary" id="niveau-badge" style="display:none;">Niveau: –</span>
           <!-- Info-Button -->
           <button
             id="info-btn"
@@ -159,13 +158,6 @@ function zeigeAktuelleFrage() {
   const frageNr = aktuelleFrageIdx + 1;
   document.getElementById('fortschritt-badge').textContent = `${frageNr} / ${GESAMT_FRAGEN}`;
   document.getElementById('fortschritt-balken').style.width = `${(frageNr / GESAMT_FRAGEN) * 100}%`;
-
-  // Niveau-Badge ab Frage 4 anzeigen
-  const niveauBadge = document.getElementById('niveau-badge');
-  if (aktuelleFrageIdx >= 3) {
-    niveauBadge.style.display = '';
-    niveauBadge.textContent = `Niveau: ${geschaetztesNiveau}`;
-  }
 
   // Lückentext aufbauen: _____ durch Eingabefeld ersetzen
   const satz = frage.frage;
