@@ -227,17 +227,21 @@ class AdminUser(Base):
 
 
 class M1Item(Base):
-    """Statische Item Bank für Modul 1 (Grammatik & Wortschatz)."""
+    """
+    Statische Item Bank für Modul 1 (Grammatik & Wortschatz).
+    Lückentext-Format: sentence enthält _____ als Platzhalter.
+    Kein options-Feld – Auswertung erfolgt per Textvergleich.
+    """
     __tablename__ = "m1_items"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    cefr_level: Mapped[str] = mapped_column(String(2), nullable=False, index=True)  # A1, A2, B1, B2, C1, C2
-    category: Mapped[str] = mapped_column(String(32), nullable=False, index=True)   # Grammatik | Wortschatz
-    topic: Mapped[str] = mapped_column(String(128), nullable=False)
+    cefr_level: Mapped[str] = mapped_column(String(2), nullable=False, index=True)   # A1, A2, B1, B2, C1, C2
+    category: Mapped[str] = mapped_column(String(32), nullable=False, index=True)    # Grammatik | Wortschatz
+    topic: Mapped[str] = mapped_column(String(128), nullable=False)                  # internes Verwaltungsfeld, nicht für Nutzer sichtbar
     context: Mapped[str] = mapped_column(String(128), nullable=False)
-    sentence: Mapped[str] = mapped_column(Text, nullable=False)                     # Satz mit ___ als Lücke
-    options: Mapped[list] = mapped_column(JSON, nullable=False)                     # ["a", "b", "c", "d"]
-    correct_answer: Mapped[str] = mapped_column(String(128), nullable=False)
+    sentence: Mapped[str] = mapped_column(Text, nullable=False)                      # Satz mit _____ als Lücke
+    correct_answer: Mapped[str] = mapped_column(String(128), nullable=False)         # einzig korrekte Antwort
+    feedback_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)        # Erklärung für die Endauswertung
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     erstellt_am: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -249,8 +253,8 @@ class M1Item(Base):
             "topic": self.topic,
             "context": self.context,
             "sentence": self.sentence,
-            "options": self.options,
             "correct_answer": self.correct_answer,
+            "feedback_text": self.feedback_text,
             "is_active": self.is_active,
         }
 
