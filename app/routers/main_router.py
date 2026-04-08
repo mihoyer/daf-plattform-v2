@@ -250,8 +250,8 @@ async def m1_items(token: str, db: AsyncSession = Depends(get_db)):
 @router.post("/api/m1/{token}/naechste")
 async def m1_naechste(token: str, request: Request, db: AsyncSession = Depends(get_db)):
     """
-    Verarbeitet eine Antwort und gibt die nächste adaptive Frage zurück.
-    Body: {"item_id": 1, "gewaehlt": 2}
+    Verarbeitet eine Lückentext-Antwort und gibt die nächste adaptive Frage zurück.
+    Body: {"item_id": 1, "eingabe": "hat"}
     """
     sess = await session_service.lade_session(db, token)
     if not sess:
@@ -263,7 +263,7 @@ async def m1_naechste(token: str, request: Request, db: AsyncSession = Depends(g
 
     body = await request.json()
     item_id = body.get("item_id")
-    gewaehlt = body.get("gewaehlt", -1)
+    eingabe = body.get("eingabe", "")
 
     cached = modul.get_roh_antworten() or {}
     alle_fragen = cached.get("alle_fragen", [])
@@ -282,7 +282,7 @@ async def m1_naechste(token: str, request: Request, db: AsyncSession = Depends(g
     }
 
     ergebnis = await m1_service.naechste_frage(
-        db, zustand, item_id, gewaehlt, sess.hilfssprache.value
+        db, zustand, item_id, eingabe, sess.hilfssprache.value
     )
 
     # Zustand aktualisieren
@@ -310,7 +310,7 @@ async def m1_naechste(token: str, request: Request, db: AsyncSession = Depends(g
 async def m1_submit(token: str, request: Request, db: AsyncSession = Depends(get_db)):
     """
     Endauswertung nach allen 10 Fragen.
-    Body: {"antworten": {"1": 2, "2": 0, ...}}
+    Body: {"antworten": {"1": "hat", "2": "weil", ...}}
     """
     sess = await session_service.lade_session(db, token)
     if not sess:
@@ -447,7 +447,7 @@ async def m3_submit(token: str, request: Request, db: AsyncSession = Depends(get
 
     modul.set_ki_analyse(auswertung)
     modul.gesamt_score = cefr_relativer_zu_absolut(auswertung["score"], auswertung["cefr"])
-    modul.cefr_niveau = CEFRNiveau(auswertung["cefr"])
+    modul.cefr_iveau = CEFRNiveau(auswertung["cefr"])
     modul.status = ModulStatus.abgeschlossen
     modul.abgeschlossen_am = datetime.now(timezone.utc)
     sess.laeuft_ab_am = datetime.now(timezone.utc) + timedelta(hours=2)
@@ -629,8 +629,8 @@ async def m5_thema(token: str, db: AsyncSession = Depends(get_db)):
     vorgaben = {
         "A1": ("1 Minute", "einfache Selbstvorstellung oder Alltagsbeschreibung", "Einfache Sätze, Präsens"),
         "A2": ("1–2 Minuten", "Erzählung aus dem Alltag oder Freizeitbeschreibung", "Einfache Verbindungen, Vergangenheit"),
-        "B1": ("2 Minuten", "Meinungs\u00e4u\u00dferung oder Erfahrungsbericht", "Begr\u00fcndungen, Nebens\u00e4tze"),
-        "B2": ("2–3 Minuten", "Argumentativer Vortrag oder Diskussion", "Komplexe Strukturen, Modalit\u00e4t"),
+        "B1": ("2 Minuten", "Meinungsäußerung oder Erfahrungsbericht", "Begründungen, Nebensätze"),
+        "B2": ("2–3 Minuten", "Argumentativer Vortrag oder Diskussion", "Komplexe Strukturen, Modalität"),
         "C1": ("3 Minuten", "Analyse oder kritische Auseinandersetzung", "Nuancierte Sprache, Fachvokabular"),
     }
     dauer, aufgabentyp, sprachl_anforderungen = vorgaben.get(niveau, vorgaben["B1"])
@@ -640,55 +640,66 @@ async def m5_thema(token: str, db: AsyncSession = Depends(get_db)):
         from app.config import settings as cfg
         import random
         oai = AsyncOpenAI(api_key=cfg.openai_api_key)
+        themen_pool = {
+            "A1": ["Meine Familie", "Mein Alltag", "Meine Wohnung", "Mein Lieblingessen", "Meine Hobbys"],
+            "A2": ["Ein typischer Tag bei der Arbeit", "Mein letzter Arztbesuch", "Einkaufen in Deutschland", "Mein Wohnort", "Ein Ausflug mit der Familie"],
+            "B1": ["Wohnungssuche in der Stadt", "Arbeit und Familie vereinbaren", "Gesundheit und Vorsorge", "Nachbarschaft und Gemeinschaft", "Berufseinstieg in Deutschland"],
+            "B2": ["Steigende Mieten und ihre Folgen", "Pflege von Angehörigen", "Chancen und Hürden auf dem Arbeitsmarkt", "Bildung und soziale Mobilität", "Gesundheitsversorgung im Vergleich"],
+            "C1": ["Soziale Ungleichheit in der modernen Gesellschaft", "Sprache als Schlüssel und Barriere", "Würde im Alter – gesellschaftliche Verantwortung", "Arbeit und Identität", "Wohnen als Grundrecht"],
+        }
+        thema = random.choice(themen_pool.get(niveau, themen_pool["B1"]))
         resp = await oai.chat.completions.create(
             model="gpt-4.1",
-            messages=[{"role": "user", "content": f"""Erstelle eine m\u00fcndliche Sprechaufgabe f\u00fcr DaF-Lernende auf CEFR-Niveau {niveau}.
+            messages=[{"role": "user", "content": f"""Erstelle eine Sprechaufgabe für DaF-Lernende auf CEFR-Niveau {niveau}.
+
+Thema: {thema}
+Aufgabentyp: {aufgabentyp}
+Sprachliche Anforderungen: {sprachl_anforderungen}
+Sprechdauer: {dauer}
 
 Anforderungen:
-- Aufgabentyp: {aufgabentyp}
-- Sprechdauer: {dauer}
-- Sprachliche Anforderungen: {sprachl_anforderungen}
-- Konkretes, lebensnahes Thema passend zum Niveau – Themen, die wirklich jeden betreffen: z.B. Arztbesuch, Wohnungssuche, Busfahren, Einkaufen, Nachbarn, Kinder und Schule, Jobsuche, Behördengänge, Krankmeldung, Feierabend, Kochen, Familie, Freunde, Urlaub, Geld, Gesundheit – für höhere Niveaus auch: Pflege, Mietpreise, Berufseinstieg, Familie und Arbeit vereinbaren, soziale Absicherung
-- Kein Klimawandel, keine KI, keine Wissenschaft, keine akademischen Themen
-- 2-3 konkrete Leitfragen oder Sprechimpulse
+- Konkrete, lebensnahe Aufgabenstellung
+- 2–3 Leitfragen oder Impulse
+- Kein Klimawandel, keine KI, keine rein akademischen Themen
 
-Antworte NUR mit JSON: {{\"thema\": \"Kurzer Titel\", \"aufgabe\": \"Die vollst\u00e4ndige Aufgabenstellung mit Leitfragen\"}}"""}],
+Antworte NUR mit JSON: {{"thema": "{thema}", "aufgabe": "Die vollständige Aufgabenstellung", "dauer": "{dauer}"}}"""}],
             response_format={"type": "json_object"},
             temperature=0.9,
         )
         import json as _json
-        data = _json.loads(resp.choices[0].message.content)
-        thema_titel = data.get("thema", "Freies Sprechen")
-        aufgabe_text = data.get("aufgabe") or thema_titel
-        thema = aufgabe_text  # vollständige Aufgabenstellung für Speicherung
+        result = _json.loads(resp.choices[0].message.content)
+        thema_text = result.get("thema", thema)
+        aufgabe_text = result.get("aufgabe", "")
+        dauer_text = result.get("dauer", dauer)
+        if not aufgabe_text:
+            raise ValueError("Leere Antwort")
     except Exception as e:
         print(f"[M5] Thema-Generierung fehlgeschlagen: {e}")
         fallback = {
-            "A1": ("Selbstvorstellung", "Stell dich vor: Wie heißt du? Wo wohnst du? Was machst du gerne?"),
-            "A2": ("Mein Alltag", "Erzähl von deinem Alltag: Was machst du morgens? Wie kommst du zur Arbeit oder zur Schule? Was isst du gerne?"),
-            "B1": ("Meine Wohnsituation", "Beschreibe, wo du wohnst: Wie ist deine Wohnung? Was gefällt dir? Was ist manchmal schwierig – zum Beispiel mit Nachbarn, Vermieter oder Nebenkosten?"),
-            "B2": ("Familie und Beruf", "Erzähl: Wie organisierst du deinen Alltag mit Familie und Arbeit? Was ist einfach, was ist schwierig? Was wünschst du dir?"),
-            "C1": ("Wohnen in Deutschland", "Diskutiere: Warum ist es für viele Menschen so schwer, eine bezahlbare Wohnung zu finden? Was sind die Ursachen? Was könnte helfen?"),
+            "A1": ("Meine Familie", "Erzähle von deiner Familie. Wie heißen deine Familienmitglieder? Was machen sie? Wo wohnen sie?", "1 Minute"),
+            "A2": ("Mein Alltag", "Beschreibe einen typischen Tag in deinem Leben. Was machst du morgens, mittags und abends? Was ist dir wichtig?", "1–2 Minuten"),
+            "B1": ("Wohnungssuche", "Erzähle von deiner Wohnsituation. Wo wohnst du? Was gefällt dir? Was ist schwierig – zum Beispiel die Kosten oder der Vermieter?", "2 Minuten"),
+            "B2": ("Arbeit und Familie", "Wie lässt sich Beruf und Familie vereinbaren? Was sind die größten Herausforderungen? Was wünschst du dir von Arbeitgebern?", "2–3 Minuten"),
+            "C1": ("Sprache und Identität", "Welche Rolle spielt Sprache für die Identität? Wie erlebst du Deutsch als Fremd- oder Zweitsprache im Alltag?", "3 Minuten"),
         }
-        thema_titel, aufgabe_text = fallback.get(niveau, fallback["B1"])
-        thema = aufgabe_text
+        thema_text, aufgabe_text, dauer_text = fallback.get(niveau, fallback["B1"])
 
     modul = _get_modul(sess, ModulTyp.m5_sprechen)
     if modul:
+        modul.set_roh_antworten({"thema": thema_text, "aufgabe": aufgabe_text})
         modul.schwierigkeitsgrad = niveau
-        modul.set_roh_antworten({"thema": thema})
         modul.status = ModulStatus.laufend
         await db.commit()
 
-    return {"thema": aufgabe_text, "thema_titel": thema_titel, "niveau": niveau, "dauer_sekunden": 90}
+    return {"thema": thema_text, "aufgabe": aufgabe_text, "dauer": dauer_text, "niveau": niveau}
 
 
 @router.post("/api/m5/{token}/upload")
 async def m5_upload(
     token: str,
     audio: UploadFile = File(...),
-    modus: str = Form("tief"),
     mime_type: str = Form(""),
+    modus: str = Form("tief"),
     db: AsyncSession = Depends(get_db),
 ):
     sess = await session_service.lade_session(db, token)
@@ -811,7 +822,7 @@ Anforderungen:
 - Kein Klimawandel, keine KI, keine Wissenschaft, keine rein akademischen Themen
 - Klare Aufgabenstellung mit 2–3 Leitfragen oder Punkten
 
-Antworte NUR mit JSON: {"aufgabe": "Die vollständige Aufgabenstellung auf Deutsch"}"""}],
+Antworte NUR mit JSON: {{"aufgabe": "Die vollständige Aufgabenstellung auf Deutsch"}}"""}],
             response_format={"type": "json_object"},
             temperature=0.9,
         )
@@ -1332,7 +1343,7 @@ async def export_pdf(token: str, db: AsyncSession = Depends(get_db)):
                     korrekt = d.get('ist_korrekt', False)
                     fragen_data.append([
                         d.get('frage', '')[:60] + ('...' if len(d.get('frage','')) > 60 else ''),
-                        d.get('gewaehlt_text', str(d.get('gewaehlt', '')))[:40],
+                        d.get('eingabe', d.get('gewaehlt_text', ''))[:40],
                         '✓' if korrekt else '✗',
                     ])
                     fragen_style.append(('TEXTCOLOR', (2, k), (2, k),
