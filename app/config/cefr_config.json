@@ -1,1 +1,23 @@
-
+{
+  "_kommentar": "CEFR-Skalenkonfiguration. Werte 0-100 pro Niveau. Anpassen nach Testdurchläufen.",
+  "_letzte_aenderung": "2026-04-10",
+  "skala": [
+    { "niveau": "unter_A1", "min": 0,  "max": 15,  "label": "Unter A1",  "farbe": "#e0e0e0" },
+    { "niveau": "A1",       "min": 16, "max": 30,  "label": "A1",        "farbe": "#ef9a9a" },
+    { "niveau": "A2",       "min": 31, "max": 45,  "label": "A2",        "farbe": "#ffcc80" },
+    { "niveau": "B1",       "min": 46, "max": 60,  "label": "B1",        "farbe": "#fff176" },
+    { "niveau": "B2",       "min": 61, "max": 75,  "label": "B2",        "farbe": "#a5d6a7" },
+    { "niveau": "C1",       "min": 76, "max": 90,  "label": "C1",        "farbe": "#90caf9" },
+    { "niveau": "C2",       "min": 91, "max": 100, "label": "C2",        "farbe": "#ce93d8" }
+  ],
+  "skill_achsen": [
+    { "id": "grammatik",    "label": "Grammatik & Struktur",      "module": ["M1", "M6"] },
+    { "id": "wortschatz",   "label": "Wortschatz & Ausdruck",     "module": ["M1", "M5", "M6"] },
+    { "id": "lesen",        "label": "Leseverstehen",             "module": ["M2"] },
+    { "id": "hoeren",       "label": "Hörverstehen",              "module": ["M3"] },
+    { "id": "aussprache",   "label": "Aussprache & Intonation",   "module": ["M4", "M5"] },
+    { "id": "flüssigkeit",  "label": "Flüssigkeit & Sprechtempo", "module": ["M4", "M5"] },
+    { "id": "interaktion",  "label": "Interaktion & Pragmatik",   "module": ["M5"] },
+    { "id": "textaufbau",   "label": "Textaufbau & Kohärenz",     "module": ["M6"] }
+  ]
+}
