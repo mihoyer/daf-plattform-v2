@@ -240,8 +240,9 @@ class M1Item(Base):
     topic: Mapped[str] = mapped_column(String(128), nullable=False)                  # internes Verwaltungsfeld, nicht für Nutzer sichtbar
     context: Mapped[str] = mapped_column(String(128), nullable=False)
     sentence: Mapped[str] = mapped_column(Text, nullable=False)                      # Satz mit _____ als Lücke
-    correct_answer: Mapped[str] = mapped_column(String(128), nullable=False)         # einzig korrekte Antwort
-    feedback_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)        # Erklärung für die Endauswertung
+    correct_answer: Mapped[str] = mapped_column(String(128), nullable=False)          # einzig korrekte Antwort
+    skill_category: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)  # grammatik | wortschatz
+    feedback_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)         # Erklärung für die Endauswertung
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     erstellt_am: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -254,6 +255,7 @@ class M1Item(Base):
             "context": self.context,
             "sentence": self.sentence,
             "correct_answer": self.correct_answer,
+            "skill_category": self.skill_category,
             "feedback_text": self.feedback_text,
             "is_active": self.is_active,
         }
