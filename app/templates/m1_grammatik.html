@@ -180,12 +180,19 @@ function zeigeAktuelleFrage() {
     onkeydown="onKeyDown(event)"
   >`);
 
+  const kontextHtml = frage.kontext
+    ? `<div style="background:#f0fdf4; border-left:3px solid #86efac; border-radius:0 6px 6px 0; padding:.5rem .75rem; margin-bottom:1rem; font-size:.875rem; color:#166534;">
+        <span style="font-weight:600; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em;">Situation:</span><br>${escapeHtml(frage.kontext)}
+       </div>`
+    : '';
+
   const container = document.getElementById('frage-container');
   container.innerHTML = `
     <div class="card${bereitsBeantwortet ? ' frage-ausgegraut' : ''}" id="frage-karte">
       <div class="text-xs text-muted mb-3">
         <span>Frage ${frageNr}</span>
       </div>
+      ${kontextHtml}
       <p class="text-sm text-muted mb-3">Ergänze die fehlende Wortform im Lückentext:</p>
       <h3 class="mb-5" style="font-size:1.15rem; line-height:2;">${satzHtml}</h3>
     </div>
