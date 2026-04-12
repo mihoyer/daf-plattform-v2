@@ -219,6 +219,7 @@ def item_zu_frage(item: dict, item_id: int) -> dict:
     return {
         "id": item_id,
         "frage": item["sentence"].replace("___", "_____"),
+        "kontext": item.get("context", ""),
         "korrekte_antwort_text": item["correct_answer"],
         "feedback_text": item.get("feedback_text", ""),
         "niveau": item["cefr_level"],
