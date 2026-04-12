@@ -110,6 +110,11 @@ async def m1_seite(request: Request, token: str):
     return templates.TemplateResponse("m1_grammatik.html", {"request": request, "token": token})
 
 
+@app.get("/m1/{token}/auswertung", response_class=HTMLResponse)
+async def m1_auswertung_seite(request: Request, token: str):
+    return templates.TemplateResponse("m1_auswertung.html", {"request": request, "token": token})
+
+
 @app.get("/m2/{token}", response_class=HTMLResponse)
 async def m2_seite(request: Request, token: str):
     return templates.TemplateResponse("m2_lesen.html", {"request": request, "token": token})
