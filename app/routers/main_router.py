@@ -345,6 +345,27 @@ async def m1_submit(token: str, request: Request, db: AsyncSession = Depends(get
     return auswertung
 
 
+@router.get("/api/m1/{token}/auswertung-daten")
+async def m1_auswertung_daten(token: str, db: AsyncSession = Depends(get_db)):
+    """
+    Gibt die gespeicherte M1-Auswertung zurück (für die Auswertungsseite).
+    Wird nach /api/m1/{token}/submit aufgerufen.
+    """
+    sess = await session_service.lade_session(db, token)
+    if not sess:
+        raise HTTPException(status_code=404, detail="Session nicht gefunden.")
+
+    modul = _get_modul(sess, ModulTyp.m1_grammatik)
+    if not modul:
+        raise HTTPException(status_code=404, detail="M1 nicht gefunden.")
+
+    auswertung = modul.get_ki_analyse()
+    if not auswertung:
+        raise HTTPException(status_code=404, detail="Noch keine Auswertung vorhanden. Bitte zuerst den Test abschließen.")
+
+    return auswertung
+
+
 # ── M2: Lesen & Leseverstehen ────────────────────────────────────────────────
 
 @router.get("/api/m2/{token}/aufgabe")
