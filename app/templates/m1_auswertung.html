@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M1 Auswertung – DaF/DaZ Sprachdiagnostik</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="/" class="navbar-brand"><div class="brand-icon">🎓</div>DaF/DaZ Sprachdiagnostik</a>
+    <div class="badge badge-primary">📊 M1 – Auswertung</div>
+  </div>
+</nav>
+
+<div class="container-sm" style="padding-top:2rem; padding-bottom:5rem;">
+
+  <!-- Lade-Overlay -->
+  <div id="lade-bereich" class="text-center" style="padding:4rem 0;">
+    <div class="spinner" style="margin:0 auto 1rem;"></div>
+    <p class="text-muted">Auswertung wird geladen…</p>
+  </div>
+
+  <!-- Ergebnis-Bereich -->
+  <div id="ergebnis-bereich" class="hidden">
+
+    <!-- CEFR-Ergebnis-Karte -->
+    <div class="card mb-4" id="cefr-karte" style="text-align:center; background: linear-gradient(135deg, var(--primary-lighter) 0%, #eff6ff 100%); border: 2px solid var(--primary);">
+      <p class="text-sm text-muted mb-2" style="letter-spacing:.05em; text-transform:uppercase; font-weight:600;">Dein Ergebnis – Modul 1</p>
+      <div id="cefr-badge-gross" style="font-size:3.5rem; font-weight:800; color:var(--primary); line-height:1; margin-bottom:.5rem;">B1</div>
+      <p class="text-sm text-muted mb-3" id="cefr-beschreibung">Mittelstufe</p>
+      <div style="display:flex; justify-content:center; gap:2rem; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:1.5rem; font-weight:700; color:var(--gray-800);" id="score-anzeige">0 / 10</div>
+          <div class="text-xs text-muted">Richtige Antworten</div>
+        </div>
+        <div>
+          <div style="font-size:1.5rem; font-weight:700; color:var(--gray-800);" id="prozent-anzeige">0%</div>
+          <div class="text-xs text-muted">Trefferquote</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Radar-Chart: Skill-Profil -->
+    <div class="card mb-4">
+      <h3 class="mb-1">Skill-Profil</h3>
+      <p class="text-sm text-muted mb-4">Deine Stärken und Schwächen in den 6 Kompetenzbereichen</p>
+      <div style="max-width:380px; margin:0 auto;">
+        <canvas id="radar-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Detaillierte Antworten -->
+    <div class="card mb-4">
+      <h3 class="mb-1">Deine Antworten im Detail</h3>
+      <p class="text-sm text-muted mb-4">Klicke auf eine Aufgabe, um die Erklärung zu sehen.</p>
+      <div id="antworten-liste"></div>
+    </div>
+
+    <!-- Weiter-Button -->
+    <div class="flex justify-end mt-4">
+      <button class="btn btn-primary" id="btn-weiter" onclick="weiter()">
+        Weiter zu Modul 2 →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+/* Antwort-Karte */
+.antwort-karte {
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  margin-bottom: .75rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow .15s;
+}
+.antwort-karte:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+
+.antwort-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 1rem;
+}
+.antwort-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.antwort-satz {
+  flex: 1;
+  font-size: .9rem;
+  line-height: 1.5;
+  color: var(--gray-800);
+}
+.antwort-satz .korrekt-wort {
+  font-weight: 700;
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 0 4px;
+  border-radius: 4px;
+}
+.antwort-satz .falsch-wort {
+  font-weight: 700;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 0 4px;
+  border-radius: 4px;
+  text-decoration: line-through;
+}
+.antwort-satz .korrekt-hinweis {
+  font-weight: 700;
+  color: #16a34a;
+  font-size: .8rem;
+  margin-left: .3rem;
+}
+.antwort-niveau {
+  font-size: .7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  flex-shrink: 0;
+}
+.antwort-feedback {
+  display: none;
+  padding: .6rem 1rem .8rem 2.8rem;
+  font-size: .82rem;
+  color: var(--gray-700);
+  line-height: 1.6;
+  border-top: 1px solid var(--gray-100);
+  background: var(--gray-50);
+}
+.antwort-karte.offen .antwort-feedback { display: block; }
+
+/* CEFR-Farben */
+.cefr-A1 { color: #6b7280; }
+.cefr-A2 { color: #2563eb; }
+.cefr-B1 { color: #16a34a; }
+.cefr-B2 { color: #d97706; }
+.cefr-C1 { color: #dc2626; }
+.cefr-C2 { color: #7c3aed; }
+</style>
+
+<script>
+const token = '{{ token }}';
+
+// CEFR-Beschreibungen
+const CEFR_TEXT = {
+  'A1': 'Anfänger – Grundlegende Sprachkenntnisse',
+  'A2': 'Grundstufe – Elementare Kommunikation',
+  'B1': 'Mittelstufe – Selbstständige Sprachverwendung',
+  'B2': 'Obere Mittelstufe – Fortgeschrittene Kenntnisse',
+  'C1': 'Fortgeschritten – Kompetente Sprachverwendung',
+  'C2': 'Meisterschaft – Annähernd muttersprachliches Niveau',
+};
+
+// Radar-Achsen-Labels (Reihenfolge muss mit Daten übereinstimmen)
+const SKILL_LABELS = {
+  'verben_zeiten':      'Verben & Zeiten',
+  'satzbau_syntax':     'Satzbau & Syntax',
+  'nomen_artikel':      'Nomen & Artikel',
+  'praepositionen':     'Präpositionen',
+  'adjektive_pronomen': 'Adjektive & Pronomen',
+  'wortschatz':         'Wortschatz',
+};
+const SKILL_ORDER = Object.keys(SKILL_LABELS);
+
+// ── Daten laden ────────────────────────────────────────────────────────────
+
+async function ladeAuswertung() {
+  try {
+    const res = await fetch(`/api/m1/${token}/auswertung-daten`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    zeigeErgebnis(data);
+  } catch (e) {
+    document.getElementById('lade-bereich').innerHTML =
+      '<p class="text-muted" style="color:#dc2626;">Fehler beim Laden der Auswertung. Bitte Seite neu laden.</p>';
+    console.error(e);
+  }
+}
+
+// ── Ergebnis anzeigen ──────────────────────────────────────────────────────
+
+function zeigeErgebnis(data) {
+  document.getElementById('lade-bereich').classList.add('hidden');
+  document.getElementById('ergebnis-bereich').classList.remove('hidden');
+
+  const cefr = data.cefr || 'B1';
+  const korrekt = data.korrekt || 0;
+  const total = data.total || 10;
+  const prozent = data.prozent || 0;
+
+  // CEFR-Badge
+  document.getElementById('cefr-badge-gross').textContent = cefr;
+  document.getElementById('cefr-badge-gross').className = `cefr-${cefr}`;
+  document.getElementById('cefr-badge-gross').style.cssText = 'font-size:3.5rem; font-weight:800; line-height:1; margin-bottom:.5rem;';
+  document.getElementById('cefr-beschreibung').textContent = CEFR_TEXT[cefr] || '';
+  document.getElementById('score-anzeige').textContent = `${korrekt} / ${total}`;
+  document.getElementById('prozent-anzeige').textContent = `${Math.round(prozent)}%`;
+
+  // Radar-Chart
+  const skillProfil = data.skill_profil || {};
+  const radarDaten = SKILL_ORDER.map(key => skillProfil[key] ?? 0);
+  const radarLabels = SKILL_ORDER.map(key => SKILL_LABELS[key]);
+
+  const ctx = document.getElementById('radar-chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: radarLabels,
+      datasets: [{
+        label: 'Dein Profil',
+        data: radarDaten,
+        backgroundColor: 'rgba(37, 99, 235, 0.15)',
+        borderColor: 'rgba(37, 99, 235, 0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: 0,
+          max: 100,
+          ticks: {
+            stepSize: 25,
+            font: { size: 10 },
+            color: '#9ca3af',
+          },
+          pointLabels: {
+            font: { size: 11, weight: '600' },
+            color: '#374151',
+          },
+          grid: { color: '#e5e7eb' },
+          angleLines: { color: '#e5e7eb' },
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${Math.round(ctx.raw)} Punkte`
+          }
+        }
+      }
+    }
+  });
+
+  // Antworten-Liste
+  const details = data.details || [];
+  const liste = document.getElementById('antworten-liste');
+  liste.innerHTML = '';
+
+  details.forEach((d, idx) => {
+    const korrektBool = d.ist_korrekt;
+    const icon = korrektBool ? '✅' : '❌';
+
+    // Satz mit Lücke füllen
+    let satzHtml = escapeHtml(d.frage || '');
+    if (korrektBool) {
+      satzHtml = satzHtml.replace(/_+/, `<span class="korrekt-wort">${escapeHtml(d.eingabe)}</span>`);
+    } else {
+      const eingabeHtml = d.eingabe
+        ? `<span class="falsch-wort">${escapeHtml(d.eingabe)}</span><span class="korrekt-hinweis">→ ${escapeHtml(d.korrekte_antwort)}</span>`
+        : `<span style="color:#9ca3af; font-style:italic;">(keine Eingabe)</span><span class="korrekt-hinweis">→ ${escapeHtml(d.korrekte_antwort)}</span>`;
+      satzHtml = satzHtml.replace(/_+/, eingabeHtml);
+    }
+
+    const feedbackHtml = d.feedback_text
+      ? `<div class="antwort-feedback"><strong>Erklärung:</strong> ${escapeHtml(d.feedback_text)}</div>`
+      : '';
+
+    const karte = document.createElement('div');
+    karte.className = 'antwort-karte';
+    karte.innerHTML = `
+      <div class="antwort-header" onclick="toggleFeedback(this.closest('.antwort-karte'))">
+        <span class="antwort-icon">${icon}</span>
+        <span class="antwort-satz">${satzHtml}</span>
+        <span class="antwort-niveau">${d.niveau || ''}</span>
+      </div>
+      ${feedbackHtml}
+    `;
+    liste.appendChild(karte);
+  });
+
+  // Weiter-Button beschriften
+  aktualisierWeiterButton();
+}
+
+// ── Feedback-Toggle ────────────────────────────────────────────────────────
+
+function toggleFeedback(karte) {
+  karte.classList.toggle('offen');
+}
+
+// ── Weiter-Button ──────────────────────────────────────────────────────────
+
+async function aktualisierWeiterButton() {
+  try {
+    const r = await fetch(`/api/session/${token}/status`);
+    const s = await r.json();
+    const naechstes = s.module
+      ? s.module.find(m => m.status === 'ausstehend')
+      : null;
+
+    const btn = document.getElementById('btn-weiter');
+    if (naechstes) {
+      const modulName = naechstes.modul.replace('_', ' ').toUpperCase().split(' ')[0];
+      btn.textContent = `Weiter zu ${modulName} →`;
+    } else {
+      btn.textContent = 'Zum Gesamtergebnis →';
+    }
+  } catch(e) {}
+}
+
+async function weiter() {
+  try {
+    const r = await fetch(`/api/session/${token}/status`);
+    const s = await r.json();
+    const naechstes = s.module
+      ? s.module.find(m => m.status === 'ausstehend')
+      : null;
+    if (naechstes) {
+      window.location.href = `/${naechstes.modul.split('_')[0]}/${token}`;
+    } else {
+      window.location.href = `/ergebnis/${token}`;
+    }
+  } catch(e) {
+    window.location.href = `/ergebnis/${token}`;
+  }
+}
+
+// ── Hilfsfunktionen ────────────────────────────────────────────────────────
+
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+ladeAuswertung();
+</script>
+</body>
+</html>

@@ -306,8 +306,8 @@ async function sendeEndauswertung() {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const naechste = await naechstesModul();
-    window.location.href = naechste || `/ergebnis/${token}`;
+    // Zur M1-Auswertungsseite weiterleiten (nicht direkt zum nächsten Modul)
+    window.location.href = `/m1/${token}/auswertung`;
   } catch (e) {
     document.getElementById('analyse-overlay').classList.add('hidden');
     alert('Fehler bei der Auswertung. Bitte versuche es erneut.');
