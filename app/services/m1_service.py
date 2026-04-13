@@ -1,18 +1,20 @@
 """
 M1-Service: Grammatik & Wortschatz – Statische Item Bank (Lückentext-Modus).
 
-Ablauf:
-1. starte_adaptiven_test()  → 3 Einstiegsfragen aus DB (A2 / B1 / B2 gemischt)
-2. naechste_frage()         → nach jeder Antwort Niveau neu schätzen, nächste Frage aus DB
-                              (ab Frage 4: gezielt fehlende skill_categories abdecken)
-3. werte_aus()              → Endauswertung (Score, CEFR, Skill-Profil 0-100 pro Achse)
+Ablauf (3 Phasen, 12 Fragen gesamt):
+  Phase 1 – Schnelle Verortung  (Fragen 1–3):  A1, B1, C1 (zufällige Reihenfolge)
+  Phase 2 – Eingrenzung         (Fragen 4–6):  Adaptiv, Niveau wird eingeengt
+  Phase 3 – Wertung             (Fragen 7–12): Adaptiv + garantierte Skill-Abdeckung
+                                               (mind. 4 Grammatik, mind. 2 Wortschatz)
 
-Keine KI-Aufrufe mehr für Fragen-Generierung.
+Skill-Achsen (global, 2 Stück):
+  grammatik  → Grammatik & Struktur
+  wortschatz → Wortschatz & Ausdruck
+
+Keine KI-Aufrufe für Fragen-Generierung.
 Adaptivität läuft vollständig im Python-Algorithmus.
-Auswertung: Texteingabe des Lernenden wird direkt mit correct_answer verglichen
+Auswertung: Texteingabe wird direkt mit correct_answer verglichen
 (case-insensitive, Umlaute normalisiert).
-
-Skill-Profil: Punkte 0-100 pro Skill-Achse, kalibriert via app/config/cefr_config.json.
 """
 import json
 import os
@@ -27,9 +29,18 @@ from app.models.database import M1Item
 # ── Konstanten ────────────────────────────────────────────────────────────────
 
 NIVEAUS = ["A1", "A2", "B1", "B2", "C1", "C2"]
-EINSTIEGS_NIVEAUS = ["A2", "B1", "B2"]
-KATEGORIE_GEWICHTE = {"Grammatik": 0.70, "Wortschatz": 0.30}
+
+# Phase 1: Gespreizte Einstiegsniveaus für schnelle Verortung
+EINSTIEGS_NIVEAUS = ["A1", "B1", "C1"]
+
+# Globale Skill-Achsen (entsprechen den IDs in cefr_config.json)
 M1_SKILL_KATEGORIEN = ["grammatik", "wortschatz"]
+
+# Gewichtung Grammatik/Wortschatz (70/30 über 12 Fragen = mind. 8 / mind. 4)
+KATEGORIE_GEWICHTE = {"Grammatik": 0.70, "Wortschatz": 0.30}
+
+# Gesamtzahl Fragen
+GESAMT_FRAGEN = 12
 
 # ── CEFR-Konfiguration laden ──────────────────────────────────────────────────
 
@@ -59,7 +70,7 @@ CEFR_CONFIG = _lade_cefr_config()
 
 def niveau_zu_punkte(niveau: str, korrekt: bool) -> float:
     """
-    Gibt den Punktwert (0-100) für ein Item zurück, basierend auf der
+    Gibt den Punktwert (0–100) für ein Item zurück, basierend auf der
     konfigurierten CEFR-Skala.
     Richtig → Mitte des Niveau-Bereichs.
     Falsch  → Mitte des darunterliegenden Bereichs.
@@ -126,13 +137,35 @@ def schaetze_niveau(antworten_verlauf: list[dict]) -> str:
 # ── Skill-Abdeckung ───────────────────────────────────────────────────────────
 
 def fehlende_skill_kategorien(kategorien_verlauf: list[dict]) -> list[str]:
-    """Gibt Skill-Kategorien zurück, die noch nicht getestet wurden."""
-    bereits_getestet = {
-        k.get("skill_category")
-        for k in kategorien_verlauf
-        if k.get("skill_category")
-    }
-    return [s for s in M1_SKILL_KATEGORIEN if s not in bereits_getestet]
+    """
+    Gibt Skill-Kategorien zurück, die noch nicht ausreichend getestet wurden.
+    Ziel: mind. 2 Wortschatz-Items unter 12 Fragen.
+    """
+    wortschatz_count = sum(
+        1 for k in kategorien_verlauf
+        if k.get("skill_category") == "wortschatz"
+    )
+    fehlende = []
+    if wortschatz_count < 2:
+        fehlende.append("wortschatz")
+    return fehlende
+
+
+def bestimme_kategorie(fragen_bisher: list[dict]) -> Optional[str]:
+    """Steuert die Grammatik/Wortschatz-Gewichtung (70/30)."""
+    if not fragen_bisher:
+        return "Grammatik"
+
+    grammatik_count = sum(1 for f in fragen_bisher if f.get("category") == "Grammatik")
+    gesamt = len(fragen_bisher)
+
+    if gesamt == 0:
+        return "Grammatik"
+
+    grammatik_anteil = grammatik_count / gesamt
+    if grammatik_anteil < KATEGORIE_GEWICHTE["Grammatik"]:
+        return "Grammatik"
+    return "Wortschatz"
 
 
 # ── Item-Bank-Abfrage ─────────────────────────────────────────────────────────
@@ -230,25 +263,13 @@ def item_zu_frage(item: dict, item_id: int) -> dict:
     }
 
 
-def bestimme_kategorie(fragen_bisher: list[dict]) -> Optional[str]:
-    if not fragen_bisher:
-        return "Grammatik"
-
-    grammatik_count = sum(1 for f in fragen_bisher if f.get("category") == "Grammatik")
-    gesamt = len(fragen_bisher)
-
-    if gesamt == 0:
-        return "Grammatik"
-
-    grammatik_anteil = grammatik_count / gesamt
-    if grammatik_anteil < KATEGORIE_GEWICHTE["Grammatik"]:
-        return "Grammatik"
-    return "Wortschatz"
-
-
 # ── Öffentliche Service-Funktionen ────────────────────────────────────────────
 
 async def starte_adaptiven_test(db: AsyncSession, hilfssprache: str = "de") -> dict:
+    """
+    Startet den Test mit Phase 1: 3 Einstiegsfragen aus A1, B1, C1
+    (gespreizt, zufällige Reihenfolge) für schnelle Verortung.
+    """
     einstiegs_niveaus = EINSTIEGS_NIVEAUS.copy()
     random.shuffle(einstiegs_niveaus)
 
@@ -277,8 +298,8 @@ async def starte_adaptiven_test(db: AsyncSession, hilfssprache: str = "de") -> d
         "geschaetztes_niveau": "B1",
         "antworten_verlauf": [],
         "naechste_id": len(fragen) + 1,
-        "gesamt_fragen": 10,
-        "phase": "einstieg",
+        "gesamt_fragen": GESAMT_FRAGEN,
+        "phase": "verortung",
         "verwendet_ids": verwendet_ids,
         "kategorien_verlauf": kategorien_verlauf,
     }
@@ -317,8 +338,8 @@ async def naechste_frage(
     neues_niveau = schaetze_niveau(antworten_verlauf)
     bevorzugte_kat = bestimme_kategorie(kategorien_verlauf)
 
-    # Ab Frage 4: gezielt fehlende Skill-Kategorien abdecken
-    fehlende = fehlende_skill_kategorien(kategorien_verlauf)
+    # Ab Frage 7 (Phase 3): Gezielt fehlende Skill-Kategorien abdecken
+    fehlende = fehlende_skill_kategorien(kategorien_verlauf) if naechste_id >= 7 else []
     bevorzugte_skill = fehlende[0] if fehlende else None
 
     item = await hole_item_aus_db(
@@ -335,6 +356,14 @@ async def naechste_frage(
             "skill_category": item.get("skill_category", "grammatik"),
         })
 
+    # Phase bestimmen
+    if naechste_id <= 3:
+        phase = "verortung"
+    elif naechste_id <= 6:
+        phase = "eingrenzung"
+    else:
+        phase = "wertung"
+
     return {
         "frage": neue_frage,
         "geschaetztes_niveau": neues_niveau,
@@ -343,6 +372,7 @@ async def naechste_frage(
         "korrekt": korrekt,
         "verwendet_ids": verwendet_ids,
         "kategorien_verlauf": kategorien_verlauf,
+        "phase": phase,
     }
 
 
@@ -351,6 +381,8 @@ async def werte_aus(alle_fragen: list[dict], antworten: dict[str, str]) -> dict:
     total = len(alle_fragen)
     details = []
     antworten_verlauf = []
+
+    # Nur 2 globale Skill-Achsen
     skill_punkte: dict[str, list[float]] = {s: [] for s in M1_SKILL_KATEGORIEN}
 
     for frage in alle_fragen:
@@ -361,12 +393,15 @@ async def werte_aus(alle_fragen: list[dict], antworten: dict[str, str]) -> dict:
         fragen_niveau = frage.get("niveau", "B1")
         skill_cat = frage.get("skill_category", "grammatik")
 
+        # Sicherstellen, dass nur globale Achsen verwendet werden
+        if skill_cat not in M1_SKILL_KATEGORIEN:
+            skill_cat = "grammatik"
+
         if ist_richtig:
             korrekt_count += 1
 
         punkte = niveau_zu_punkte(fragen_niveau, ist_richtig)
-        if skill_cat in skill_punkte:
-            skill_punkte[skill_cat].append(punkte)
+        skill_punkte[skill_cat].append(punkte)
 
         antworten_verlauf.append({
             "niveau": fragen_niveau,
@@ -376,6 +411,7 @@ async def werte_aus(alle_fragen: list[dict], antworten: dict[str, str]) -> dict:
         details.append({
             "id": frage["id"],
             "frage": frage["frage"],
+            "kontext": frage.get("kontext", ""),
             "eingabe": eingabe,
             "korrekte_antwort": korrekte_antwort,
             "ist_korrekt": ist_richtig,
@@ -404,6 +440,7 @@ async def werte_aus(alle_fragen: list[dict], antworten: dict[str, str]) -> dict:
     final_idx = round((adaptiv_idx + prozent_idx) / 2)
     final_cefr = NIVEAUS[final_idx]
 
+    # Skill-Profil: 2 globale Achsen mit 0–100 Scores
     skill_profil = {}
     for skill, punkte_liste in skill_punkte.items():
         if punkte_liste:
@@ -470,4 +507,5 @@ def _fallback_frage(niveau: str, item_id: int) -> dict:
     fb["niveau"] = niveau
     fb["category"] = "Grammatik"
     fb["item_bank_id"] = None
+    fb["kontext"] = ""
     return fb
