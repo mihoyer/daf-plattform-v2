@@ -46,8 +46,38 @@
     <!-- Radar-Chart: Skill-Profil -->
     <div class="card mb-4">
       <h3 class="mb-1">Skill-Profil</h3>
-      <p class="text-sm text-muted mb-4">Deine Stärken und Schwächen in den 6 Kompetenzbereichen</p>
-      <div style="max-width:380px; margin:0 auto;">
+      <p class="text-sm text-muted mb-4">Deine Scores auf den globalen Skill-Achsen (0–100). Diese Werte fließen in das modulübergreifende Gesamtprofil ein.</p>
+
+      <!-- Grammatik-Balken -->
+      <div style="margin-bottom:1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.3rem;">
+          <span style="font-size:.9rem; font-weight:600; color:#374151;">Grammatik & Struktur</span>
+          <span id="grammatik-score-label" style="font-size:.85rem; font-weight:700; color:#2563eb;">–</span>
+        </div>
+        <div style="background:#e5e7eb; border-radius:9999px; height:12px;">
+          <div id="grammatik-bar" style="background:#2563eb; border-radius:9999px; height:12px; width:0%; transition:width 1s ease;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:.7rem; color:#9ca3af; margin-top:.2rem;">
+          <span>A1 (16)</span><span>A2 (31)</span><span>B1 (46)</span><span>B2 (61)</span><span>C1 (76)</span><span>C2 (91)</span>
+        </div>
+      </div>
+
+      <!-- Wortschatz-Balken -->
+      <div style="margin-bottom:1rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:.3rem;">
+          <span style="font-size:.9rem; font-weight:600; color:#374151;">Wortschatz & Ausdruck</span>
+          <span id="wortschatz-score-label" style="font-size:.85rem; font-weight:700; color:#16a34a;">–</span>
+        </div>
+        <div style="background:#e5e7eb; border-radius:9999px; height:12px;">
+          <div id="wortschatz-bar" style="background:#16a34a; border-radius:9999px; height:12px; width:0%; transition:width 1s ease;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:.7rem; color:#9ca3af; margin-top:.2rem;">
+          <span>A1 (16)</span><span>A2 (31)</span><span>B1 (46)</span><span>B2 (61)</span><span>C1 (76)</span><span>C2 (91)</span>
+        </div>
+      </div>
+
+      <!-- Balkendiagramm -->
+      <div style="max-width:380px; margin:1rem auto 0;">
         <canvas id="radar-chart"></canvas>
       </div>
     </div>
@@ -160,14 +190,10 @@ const CEFR_TEXT = {
   'C2': 'Meisterschaft – Annähernd muttersprachliches Niveau',
 };
 
-// Radar-Achsen-Labels (Reihenfolge muss mit Daten übereinstimmen)
+// Globale Skill-Achsen (2 Stück, entsprechen cefr_config.json)
 const SKILL_LABELS = {
-  'verben_zeiten':      'Verben & Zeiten',
-  'satzbau_syntax':     'Satzbau & Syntax',
-  'nomen_artikel':      'Nomen & Artikel',
-  'praepositionen':     'Präpositionen',
-  'adjektive_pronomen': 'Adjektive & Pronomen',
-  'wortschatz':         'Wortschatz',
+  'grammatik':  'Grammatik & Struktur',
+  'wortschatz': 'Wortschatz & Ausdruck',
 };
 const SKILL_ORDER = Object.keys(SKILL_LABELS);
 
@@ -205,52 +231,44 @@ function zeigeErgebnis(data) {
   document.getElementById('score-anzeige').textContent = `${korrekt} / ${total}`;
   document.getElementById('prozent-anzeige').textContent = `${Math.round(prozent)}%`;
 
-  // Radar-Chart
+  // Skill-Profil: 2 globale Achsen
   const skillProfil = data.skill_profil || {};
-  const radarDaten = SKILL_ORDER.map(key => skillProfil[key] ?? 0);
-  const radarLabels = SKILL_ORDER.map(key => SKILL_LABELS[key]);
+  const grammatikScore = skillProfil['grammatik'] ?? null;
+  const wortschatzScore = skillProfil['wortschatz'] ?? null;
 
+  // Balken animieren
+  const gLabel = document.getElementById('grammatik-score-label');
+  const wLabel = document.getElementById('wortschatz-score-label');
+  if (gLabel) {
+    gLabel.textContent = grammatikScore !== null ? grammatikScore + ' / 100' : 'Keine Daten';
+    if (grammatikScore !== null) setTimeout(() => { document.getElementById('grammatik-bar').style.width = grammatikScore + '%'; }, 100);
+  }
+  if (wLabel) {
+    wLabel.textContent = wortschatzScore !== null ? wortschatzScore + ' / 100' : 'Keine Daten';
+    if (wortschatzScore !== null) setTimeout(() => { document.getElementById('wortschatz-bar').style.width = wortschatzScore + '%'; }, 100);
+  }
+
+  // Balkendiagramm
   const ctx = document.getElementById('radar-chart').getContext('2d');
   new Chart(ctx, {
-    type: 'radar',
+    type: 'bar',
     data: {
-      labels: radarLabels,
+      labels: ['Grammatik & Struktur', 'Wortschatz & Ausdruck'],
       datasets: [{
-        label: 'Dein Profil',
-        data: radarDaten,
-        backgroundColor: 'rgba(37, 99, 235, 0.15)',
-        borderColor: 'rgba(37, 99, 235, 0.8)',
+        label: 'Score (0–100)',
+        data: [grammatikScore ?? 0, wortschatzScore ?? 0],
+        backgroundColor: ['rgba(37,99,235,0.7)', 'rgba(22,163,74,0.7)'],
+        borderColor: ['rgba(37,99,235,1)', 'rgba(22,163,74,1)'],
         borderWidth: 2,
-        pointBackgroundColor: 'rgba(37, 99, 235, 1)',
-        pointRadius: 4,
+        borderRadius: 8,
       }]
     },
     options: {
       responsive: true,
+      plugins: { legend: { display: false } },
       scales: {
-        r: {
-          min: 0,
-          max: 100,
-          ticks: {
-            stepSize: 25,
-            font: { size: 10 },
-            color: '#9ca3af',
-          },
-          pointLabels: {
-            font: { size: 11, weight: '600' },
-            color: '#374151',
-          },
-          grid: { color: '#e5e7eb' },
-          angleLines: { color: '#e5e7eb' },
-        }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${Math.round(ctx.raw)} Punkte`
-          }
-        }
+        y: { min: 0, max: 100, ticks: { stepSize: 15, color: '#9ca3af' }, grid: { color: '#f3f4f6' } },
+        x: { grid: { display: false } }
       }
     }
   });
